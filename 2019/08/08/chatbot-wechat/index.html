@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="generator" content="Hexo 3.9.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: 'search.xml'
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="博客搭建的第一篇文章，就转发自己写的一篇软文吧。">
+<meta name="keywords" content="NLP,chatbot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="闻言、名义、知心——你的智能伙伴，聊天机器人">
+<meta property="og:url" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/index.html">
+<meta property="og:site_name" content="冰焰虫子">
+<meta property="og:description" content="博客搭建的第一篇文章，就转发自己写的一篇软文吧。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/baymax.gif">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/hfys.jpg">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/dcdy.jpg">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/znjj.png">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/znsh.jpg">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/znkf.png">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/qita.png">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/renwu.png">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/renwu.png">
+<meta property="og:updated_time" content="2019-08-08T15:41:36.021Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="闻言、名义、知心——你的智能伙伴，聊天机器人">
+<meta name="twitter:description" content="博客搭建的第一篇文章，就转发自己写的一篇软文吧。">
+<meta name="twitter:image" content="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/baymax.gif">
+  <link rel="canonical" href="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/">
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>闻言、名义、知心——你的智能伙伴，聊天机器人 | 冰焰虫子</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">冰焰虫子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+    <ul id="menu" class="menu">
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-search">
+          <a href="javascript:;" class="popup-trigger">
+          
+            <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+    
+
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+    </div>
+</nav>
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aaron Li">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冰焰虫子">
+    </span>
+      <header class="post-header">
+
+        
+          <h1 class="post-title" itemprop="name headline">闻言、名义、知心——你的智能伙伴，聊天机器人
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-08-08 21:22:35 / 修改时间：23:41:36" itemprop="dateCreated datePublished" datetime="2019-08-08T21:22:35+08:00">2019-08-08</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/chatbot/" itemprop="url" rel="index"><span itemprop="name">chatbot</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          <br>
+            <div class="post-description">博客搭建的第一篇文章，就转发自己写的一篇软文吧。</div>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="baymax.gif" alt="img">   </p>
+<p>第一篇真正的博文，就转发一下自己为公司写的软文吧，<a href="https://mp.weixin.qq.com/s/2t0Kmxw8XVgB3V2cHSBOmg" target="_blank" rel="noopener">闻言、名义、知心——你的智能伙伴，聊天机器人</a></p>
+<p>“Hello！I am Baymax，Your personal healthcare companion.” （“你好，我是大白，你的个人健康伙伴”）——《超能陆战队》。</p>
+<p>《超能陆战队》是一部于2015年上映的动漫科幻电影，成功塑造了“大白”这样一个憨态可掬、善解人意的智能机器人的形象。与冷冰冰的机器相比，大白不仅能跟主人公小宏进行萌萌哒的语言交流，而且还能感受、理解小宏的意图、情绪和情感，帮助小宏克服种种困难，完成各种挑战。假如现在也给我们这样一个“大白”的话，我想你我应该都不会拒绝的。</p>
+<p>虽然到目前为止， 现实中还不存在像“大白”这样一个暖心的智能伙伴，但是人工智能技术地发展，催生了各种聊天机器人的出现（小冰、小娜、小蜜、小爱同学、Siri、balabala…），正让这位暖心的朋友一步一步地向我们走来。现在这些还活在我们手机、电脑或音箱里的聊天机器人已经可以帮我们做一些类似于机票预定、问题解答等相关的事情了，甚至它们还会不时地“撩”你一下哟。</p>
+<h1 id="环肥燕瘦"><a href="#环肥燕瘦" class="headerlink" title="环肥燕瘦"></a>环肥燕瘦</h1><p><img src="hfys.jpg" alt="img"></p>
+<p>自2016年谷歌I/O开发者大会发布Google Home智能音箱以来，国内外掀起了一股聊天机器人产品化的热潮，国内外的百度、阿里、小米、亚马逊、微软等知名厂商纷纷发布了各自的聊天机器人产品和开放平台。微软的当家人萨提亚·纳德拉更是提出了对话即平台（Conversations as a Platform， CaaS）的发展战略。</p>
+<p>现在已经迈入2019年下半年的门槛了，到目前为止，市面上涌现了各式各样的聊天机器人产品。这些聊天机器人可能是一个圆圆或者方方的智能音箱，安静的待在角落里时刻等待着你的召唤。它们还可能藏身于一部手机、一块手表，时刻陪在你的身边，帮你订外卖、问天气、查路线。有的时候它们会化身为“人”，热情地欢迎你的光临。或许你不是一个张扬的人，不喜欢把一切都说出来，它们也会耐心地跟你用文字传递心意。</p>
+<h1 id="多才多艺"><a href="#多才多艺" class="headerlink" title="多才多艺"></a>多才多艺</h1><p><img src="dcdy.jpg" alt="img"></p>
+<p>各种各样的聊天机器人产品正通过语言和文字这两种最接近人类交互的方式，慢慢地融入到我们生活、学习、工作当中，让我们身边的一切都开始变得智能起来。目前，聊天机器人已经在智能家居、智能生活、智能客服等领域取得了初步的成效。未来，在更多的领域，它们都会像一位专属于你的私人秘书一样，只要你跟他简单地“说”一句，它们就会理解你的想法，帮你完成想做的事情。</p>
+<h2 id="智能家居"><a href="#智能家居" class="headerlink" title="智能家居"></a>智能家居</h2><p><img src="znjj.png" alt="img"></p>
+<p>目前很多的智能音箱产品或者语音助手都提供了家居场景的解决方案，用户可以通过人机对话的方式对家庭中各类电子设备的控制，如家居机器人、灯光、冰箱、插座、空调、电视、窗帘等等，彻底解放双手。想象一下，未来在自己的家中，我们或许真的能过上“衣来伸手饭来张口”的日子。</p>
+<h2 id="智能生活"><a href="#智能生活" class="headerlink" title="智能生活"></a>智能生活</h2><p><img src="znsh.jpg" alt="img"></p>
+<p>现在是移动互联网的时代，智能手机与各种智能穿戴设备都已经非常流行。在系统级别上，用户在唤醒手机助手或智能设备后，可以通过对话的方式进行交流、操作和控制，获取资讯以及各项生活服务    等等。在app级别上，用户亦可以通过对话的方式，免手持对app进行功能操作或内容获取等。现在我们已经可以通过语音助手查天气、订外卖、订机票、打电话、发短信等等一系列事情了，未来，随着技术的不断进步，我们可能会拥有一位更全能的智能“生活管家”。</p>
+<h2 id="智能客服"><a href="#智能客服" class="headerlink" title="智能客服"></a>智能客服</h2><p><img src="znkf.png" alt="img"></p>
+<p>现在各种网站以及app开始越来越多的把聊天机器人集成到客服系统中，相对于人工座席客服，聊天机器人可以提供7*24不间断的服务。目前机器人客服已经可以代替人工客服解答一些高频的问题，使得人工客服能够聚焦于更高价值的业务，有效地降低了人力成本，提升了人效。</p>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p><img src="qita.png" alt="img"></p>
+<p>除了上述应用场景外，聊天机器人还被越来越多地应用于智能出行、智能服务等场景中，随着人工智能的不断发展，我们可能会在越来越多的场景中看到聊天机器人的身影。</p>
+<h1 id="三大流派"><a href="#三大流派" class="headerlink" title="三大流派"></a>三大流派</h1><p>聊天机器人的形态多种多样，交互的方式也不尽相同，但是对所包含的功能进行划分的话，总体上可以分为任务型、问答型和闲聊型三种。有些机器人产品只包含某一种类型的功能，而另外一些则会集成其中两种或所有类型的功能。</p>
+<h2 id="任务型"><a href="#任务型" class="headerlink" title="任务型"></a>任务型</h2><p>任务型机器人指特定条件下提供信息或服务的机器人。通常情况下是为了满足带有明确目的的用户，例如查流量，查话费，订餐，订票，咨询等任务型场景。由于用户的需求较为复杂，通常情况下需分多轮互动，用户也可能在对话过程中不断修改与完善自己的需求，任务型机器人需要通过询问、澄清和确认来帮助用户明确目的。其基本流程如下：</p>
+<p><img src="renwu.png" alt="img"></p>
+<p><strong>口语理解（SLU）</strong>：把用户输入的自然语言转变为结构化信息——act-slot-value三元组。例如餐厅订座应用中用户说“订云海肴中关村店”，我们通过NLU把它转化为结构化信息：“inform(order_op=预订, restaurant_name=云海肴, subbranch=中关村店)”，其中的“inform”是动作名称，而括号中的是识别出的槽位及其取值。 </p>
+<p><strong>对话管理（DM）</strong>：综合用户当前query和历史对话中已获得的信息后，给出机器答复的结构化表示。对话管理包含两个模块：对话状态追踪（DST）和策略优化（DPO）。 DST维护对话状态，它依据最新的系统和用户行为，把旧对话状态更新为新对话状态。其中对话状态应该包含持续对话所需要的各种信息。 DPO根据DST维护的对话状态，确定当前状态下机器人应如何进行答复，也即采取何种策略答复是最优的。</p>
+<p><strong>自然语言产生（NLG）</strong>：把DM输出的结构化对话策略还原成对人友好的自然语言。简单的NLG方法可以是事先设定好的回复模板，复杂的可以使用深度学习生成模型。</p>
+<h2 id="问答型"><a href="#问答型" class="headerlink" title="问答型"></a>问答型</h2><p>问答型机器人的主要任务是从特定知识库中找出与用户提出的问题最匹配的答案。智能客服通常都会包含这一类型的机器人，用于回答一些高频的问题，减轻人工客服的压力。其基本流程如下：</p>
+<p><img src="renwu.png" alt="img"></p>
+<p>文本检索和匹配是问答型机器人的核心组成部分，除此之外，可能还会重排序这一功能模块。</p>
+<p><strong>文本检索</strong>：首先通过检索的方式从知识库的大量语料中筛选出可能包含答案的候选集，供后续匹配模块打分，计算相似度。文本检索主要包含词语级别和句子级别两种方式，其中词语级别是通过关键词匹配进行的，句子级别是基于语义度量进行的。</p>
+<p><strong>文本匹配</strong>：通过字面或者语义等不同的方式计算用户所提问题与候选集的相似度。这些相似度会直接用于返回答案或者供后续重排序模块使用。</p>
+<p><strong>重排序</strong>：类似于ensemble learning中的stacking，利用各种不同类型的相似度分数作为输入，重新对候选集进行排序，排序的结果将最终用于生成答案。</p>
+<h2 id="闲聊型"><a href="#闲聊型" class="headerlink" title="闲聊型"></a>闲聊型</h2><p>真实应用中，用户与系统交互的过程中不免会涉及到闲聊成分。闲聊功能可以让对话机器人更有情感和温度。闲聊机器人可以通过事先准备的闲聊库实现，这样的话，类似于问答型的机器人。另外一种实现方式是使用机器翻译中的深度学习seq2seq框架来产生答复，相比于前一种实现方式，这种方式通常能产生更多样化的回答，智能化程度更高。</p>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1><p>聊天机器人承载了全新的交互形式，可能带来了全新的产品服务体验，这种进步过去从来没有过。我们每个人几乎都在渴望着机器人时代的到来，也许很遥远，也许已经在路上，谁知道呢？Hello，大白，你快到了吗？</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ol>
+<li>小米AI音箱：<a href="https://www.mi.com/aispeaker/" target="_blank" rel="noopener">https://www.mi.com/aispeaker/</a></li>
+<li>天猫精灵：<a href="https://bot.tmall.com/" target="_blank" rel="noopener">https://bot.tmall.com/</a></li>
+<li>unit开放平台：<a href="https://ai.baidu.com/unit/home" target="_blank" rel="noopener">https://ai.baidu.com/unit/home</a></li>
+<li>关于对话机器人，你需要了解这些技术：<a href="https://blog.csdn.net/qq_40027052/article/details/78723576" target="_blank" rel="noopener">https://blog.csdn.net/qq_40027052/article/details/78723576</a></li>
+<li>揭秘任务型对话机器人（上篇）：<a href="https://www.cnblogs.com/qcloud1001/p/9181900.html" target="_blank" rel="noopener">https://www.cnblogs.com/qcloud1001/p/9181900.html</a></li>
+<li>AnyQ：<a href="https://github.com/baidu/AnyQ" target="_blank" rel="noopener">https://github.com/baidu/AnyQ</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+        
+        <div class="post-tags">
+            <a href="/tags/NLP/" rel="tag"># NLP</a>
+          
+            <a href="/tags/chatbot/" rel="tag"># chatbot</a>
+          
+        </div>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+              <a href="/2019/07/29/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+          </div>
+        </div>
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/cat.jpg"
+      alt="Aaron Li">
+  <p class="site-author-name" itemprop="name">Aaron Li</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+        
+        
+          
+        
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span>
+        
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+        
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">标签</span>
+        
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/IceFlameWorm" title="GitHub &rarr; https://github.com/IceFlameWorm" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+  </div>
+
+
+
+        </div>
+      </div>
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环肥燕瘦"><span class="nav-number">1.</span> <span class="nav-text">环肥燕瘦</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多才多艺"><span class="nav-number">2.</span> <span class="nav-text">多才多艺</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#智能家居"><span class="nav-number">2.1.</span> <span class="nav-text">智能家居</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#智能生活"><span class="nav-number">2.2.</span> <span class="nav-text">智能生活</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#智能客服"><span class="nav-number">2.3.</span> <span class="nav-text">智能客服</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它"><span class="nav-number">2.4.</span> <span class="nav-text">其它</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三大流派"><span class="nav-number">3.</span> <span class="nav-text">三大流派</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#任务型"><span class="nav-number">3.1.</span> <span class="nav-text">任务型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问答型"><span class="nav-number">3.2.</span> <span class="nav-text">问答型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#闲聊型"><span class="nav-number">3.3.</span> <span class="nav-text">闲聊型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#结语"><span class="nav-number">4.</span> <span class="nav-text">结语</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aaron Li</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+      </div>
+
+    
+
+  </div>
+
+  
+    
+    
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+  
+  <script src="/js/schemes/muse.js?v=7.2.0"></script>
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.2.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
