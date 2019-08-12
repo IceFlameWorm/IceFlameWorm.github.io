@@ -57,14 +57,21 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="冰焰虫子">
-<meta property="og:url" content="http://iceflameworm.github.io/index.html">
+  <meta name="description" content="简单梳理一下github上开源的一个聊天机器人框架：gunthercox/ChatterBot，内容主要包含工作流程，训练器和逻辑适配器三部分。由于作者初涉chatbot这一领域，所以对某些部分的理解可能不到位，敬请谅解。">
+<meta name="keywords" content="NLP,chatbot,开源框架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="开源框架gunthercox&#x2F;ChatterBot浅析">
+<meta property="og:url" content="http://iceflameworm.github.io/2019/08/12/chatterbot-github/index.html">
 <meta property="og:site_name" content="冰焰虫子">
+<meta property="og:description" content="简单梳理一下github上开源的一个聊天机器人框架：gunthercox/ChatterBot，内容主要包含工作流程，训练器和逻辑适配器三部分。由于作者初涉chatbot这一领域，所以对某些部分的理解可能不到位，敬请谅解。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/12/chatterbot-github/workflow.png">
+<meta property="og:updated_time" content="2019-08-12T14:33:19.475Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="冰焰虫子">
-  <link rel="canonical" href="http://iceflameworm.github.io/">
+<meta name="twitter:title" content="开源框架gunthercox&#x2F;ChatterBot浅析">
+<meta name="twitter:description" content="简单梳理一下github上开源的一个聊天机器人框架：gunthercox/ChatterBot，内容主要包含工作流程，训练器和逻辑适配器三部分。由于作者初涉chatbot这一领域，所以对某些部分的理解可能不到位，敬请谅解。">
+<meta name="twitter:image" content="http://iceflameworm.github.io/2019/08/12/chatterbot-github/workflow.png">
+  <link rel="canonical" href="http://iceflameworm.github.io/2019/08/12/chatterbot-github/">
 
 
 <script id="page.configurations">
@@ -73,7 +80,7 @@
   };
 </script>
 
-  <title>冰焰虫子</title>
+  <title>开源框架gunthercox/ChatterBot浅析 | 冰焰虫子</title>
   
 
 
@@ -112,7 +119,7 @@
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
-  <div class="container sidebar-position-left page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -145,7 +152,7 @@
         
         
           
-          <li class="menu-item menu-item-home menu-item-active">
+          <li class="menu-item menu-item-home">
       
     
 
@@ -217,8 +224,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
-      
+
+  <div id="posts" class="posts-expand">
+    
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
   
@@ -239,10 +247,8 @@
       <header class="post-header">
 
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/08/12/chatterbot-github/" class="post-title-link" itemprop="url">开源框架gunthercox/ChatterBot浅析</a>
+          <h1 class="post-title" itemprop="name headline">开源框架gunthercox/ChatterBot浅析
+
               
             
           </h1>
@@ -285,6 +291,8 @@
           
 
           <br>
+            <div class="post-description">简单梳理一下github上开源的一个聊天机器人框架：gunthercox/ChatterBot，内容主要包含工作流程，训练器和逻辑适配器三部分。由于作者初涉chatbot这一领域，所以对某些部分的理解可能不到位，敬请谅解。</div>
+          
 
         </div>
       </header>
@@ -295,18 +303,27 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          简单梳理一下github上开源的一个聊天机器人框架：gunthercox/ChatterBot，内容主要包含工作流程，训练器和逻辑适配器三部分。由于作者初涉chatbot这一领域，所以对某些部分的理解可能不到位，敬请谅解。
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/12/chatterbot-github/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
+        <p>转载请注明来源：<a href="http://iceflameworm.github.io/2019/08/12/chatterbot-github/">http://iceflameworm.github.io/2019/08/12/chatterbot-github/</a></p>
+<h1 id="框架简介"><a href="#框架简介" class="headerlink" title="框架简介"></a>框架简介</h1><p>Chatterbot是一个完全用python编写的基于文本检索/匹配的聊天机器人框架，它会从保存的对话语料中找出与输入句子最匹配的句子，并把匹配到的句子的下一句作为回答返回。本文主要对其工作流程，以及核心的训练器和逻辑适配器进行梳理，具体使用方法，请参考其文档。</p>
+<p>框架地址：<a href="https://github.com/gunthercox/ChatterBot" target="_blank" rel="noopener">https://github.com/gunthercox/ChatterBot</a><br>文档地址：<a href="https://chatterbot.readthedocs.io/en/stable/" target="_blank" rel="noopener">https://chatterbot.readthedocs.io/en/stable/</a></p>
+<h1 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h1><p><img src="workflow.png" alt="img"></p>
+<p>原文档中有两幅描述工作流程的示意图，一幅在<a href="https://chatterbot.readthedocs.io/en/stable/index.html" target="_blank" rel="noopener">文档首页</a>，一幅在<a href="https://chatterbot.readthedocs.io/en/stable/logic/index.html" target="_blank" rel="noopener">文档-逻辑适配器</a>，个人认为后者描述的更全面、更恰当些，所以就以后者为准进行介绍。</p>
+<p>从输入句子到输出响应回答，前后需要经历三大步：</p>
+<ol>
+<li>预处理</li>
+<li>生成答案</li>
+<li>答案选择</li>
+</ol>
+<p>具体流程请参考<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/chatterbot.py" target="_blank" rel="noopener">chatterbot.py</a>。</p>
+<h2 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h2><p>与通常所讲的NLP预处理的目的基本一致，主要是文本进行一些标准还操作，比如去除连续的空格、删除特殊字符等等。Chatterbot框架自身实现了<code>clean_whitespace</code>, <code>unescape_html</code>和<code>convert_to_ascii</code>三种预处理功能。具体实现参见<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/preprocessors.py" target="_blank" rel="noopener">preprocessors.py</a></p>
+<h2 id="生成答案"><a href="#生成答案" class="headerlink" title="生成答案"></a>生成答案</h2><p>一个Chatterbot实例可以绑定多个逻辑适配器，用于根据输入产生输出。</p>
+<p>Chatterbot中没有独立的用于选择对话逻辑的意图识别模块，它将意图识别的功能放到了各个逻辑适配器中。接收到输入之后，Chatterbot会将其传递给各个逻辑适配器，由它们自己判断是否适合对输入的文本进行回答。如果逻辑适配器认为不能对输入进行回答，则会跳过，否则就输出回答，这样的话，有可能所有逻辑适配器都不输出回答，也有可能有多个逻辑适配器都给出了回答。具体请参考：<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/chatterbot.py" target="_blank" rel="noopener">ChatBot::generate_response</a>方法。</p>
+<p>从<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/chatterbot.py" target="_blank" rel="noopener">ChatBot::__init__</a>中的以下两段代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">self.storage = utils.initialize_class(storage_adapter, **kwargs)</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> adapter <span class="keyword">in</span> logic_adapters:</span><br><span class="line">    utils.validate_adapter_class(adapter, LogicAdapter)</span><br><span class="line">    logic_adapter = utils.initialize_class(adapter, self, **kwargs)</span><br><span class="line">    self.logic_adapters.append(logic_adapter)</span><br></pre></td></tr></table></figure>
+
+<p>可知，所有的逻辑适配器都共享一份保存的对话语料。倘若逻辑适配器内部不对数据进行选择的话，所有的逻辑适配器都将从所有的对话语料数据中查找最匹配的回答。这样的结果就是，每个逻辑适配器在相同的数据上用不同的匹配方法或指标产生回答，衡量每个回答confidence的标准并不一致，这会影响后续根据confidence进行答案选择。</p>
+<p>先写到这里，剩下的后面再写 ^_^。</p>
+<h2 id="答案选择"><a href="#答案选择" class="headerlink" title="答案选择"></a>答案选择</h2><h1 id="训练器"><a href="#训练器" class="headerlink" title="训练器"></a>训练器</h1><h1 id="逻辑适配器"><a href="#逻辑适配器" class="headerlink" title="逻辑适配器"></a>逻辑适配器</h1>
     </div>
 
     
@@ -314,112 +331,29 @@
     
 
     <footer class="post-footer">
-        <div class="post-eof"></div>
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-    
-      
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/08/08/chatbot-wechat/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Aaron Li">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/cat.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="冰焰虫子">
-    </span>
-      <header class="post-header">
-
+          
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/08/08/chatbot-wechat/" class="post-title-link" itemprop="url">闻言、名义、知心——你的智能伙伴，聊天机器人</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-08-08 21:22:35 / 修改时间：23:41:36" itemprop="dateCreated datePublished" datetime="2019-08-08T21:22:35+08:00">2019-08-08</time>
-            </span>
+        <div class="post-tags">
+            <a href="/tags/NLP/" rel="tag"># NLP</a>
           
-            
-
-            
+            <a href="/tags/chatbot/" rel="tag"># chatbot</a>
           
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/chatbot/" itemprop="url" rel="index"><span itemprop="name">chatbot</span></a></span>
-
-                
-                
-              
-            </span>
+            <a href="/tags/开源框架/" rel="tag"># 开源框架</a>
           
-
-          <br>
-
         </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          博客搭建的第一篇文章，就转发自己写的一篇软文吧。
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/08/08/chatbot-wechat/">
-                阅读全文 &raquo;
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+              <a href="/2019/08/08/chatbot-wechat/" rel="next" title="闻言、名义、知心——你的智能伙伴，聊天机器人">
+                <i class="fa fa-chevron-left"></i> 闻言、名义、知心——你的智能伙伴，聊天机器人
               </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
+            
+          </div>
 
-    
-    
-    
+          <span class="post-nav-divider"></span>
 
-    <footer class="post-footer">
-        <div class="post-eof"></div>
+          <div class="post-nav-prev post-nav-item">
+          </div>
+        </div>
     </footer>
   </div>
   
@@ -427,14 +361,12 @@
   
   </article>
 
-    
-  </section>
-
-  
+  </div>
 
 
           </div>
           
+
 
         </div>
           
@@ -449,8 +381,17 @@
 
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-inner">
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
 
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -519,6 +460,23 @@
 
         </div>
       </div>
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#框架简介"><span class="nav-number">1.</span> <span class="nav-text">框架简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#工作流程"><span class="nav-number">2.</span> <span class="nav-text">工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#预处理"><span class="nav-number">2.1.</span> <span class="nav-text">预处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成答案"><span class="nav-number">2.2.</span> <span class="nav-text">生成答案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#答案选择"><span class="nav-number">2.3.</span> <span class="nav-text">答案选择</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#训练器"><span class="nav-number">3.</span> <span class="nav-text">训练器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#逻辑适配器"><span class="nav-number">4.</span> <span class="nav-text">逻辑适配器</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
 
     </div>
   </aside>
@@ -574,6 +532,10 @@
 
 
   
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
 
   <script src="/js/next-boot.js?v=7.2.0"></script>
 
