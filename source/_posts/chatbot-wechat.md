@@ -1,16 +1,16 @@
 ---
-title: 闻言、名义、知心——你的智能伙伴，聊天机器人 
+title: 闻言、明义、知心——你的智能伙伴，聊天机器人 
 date: 2019-08-08 21:22:35
 tags:
     - NLP
     - chatbot
 categories: chatbot
-description: 博客搭建的第一篇文章，就转发自己写的一篇软文吧。
+description: 博客搭建的第一篇文章，就转发自己写的一篇软文吧, 主要聊一聊chatbot的各种形式，应用场景和简单的原理等。
 ---
 
 ![img](baymax.gif)   
 
-第一篇真正的博文，就转发一下自己为公司写的软文吧，[闻言、名义、知心——你的智能伙伴，聊天机器人](https://mp.weixin.qq.com/s/2t0Kmxw8XVgB3V2cHSBOmg)
+第一篇真正的博文，就转发一下自己为公司写的软文吧，[闻言、明义、知心——你的智能伙伴，聊天机器人](https://mp.weixin.qq.com/s/2t0Kmxw8XVgB3V2cHSBOmg)
 
 “Hello！I am Baymax，Your personal healthcare companion.” （“你好，我是大白，你的个人健康伙伴”）——《超能陆战队》。
 
