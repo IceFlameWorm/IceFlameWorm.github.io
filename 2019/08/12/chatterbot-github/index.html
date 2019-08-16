@@ -66,7 +66,7 @@
 <meta property="og:description" content="简单梳理一下github上开源的一个聊天机器人框架：gunthercox/ChatterBot，内容主要包含工作流程，训练器和逻辑适配器三部分。由于作者初涉chatbot这一领域，所以对某些部分的理解可能不到位，敬请谅解。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://iceflameworm.github.io/2019/08/12/chatterbot-github/workflow.png">
-<meta property="og:updated_time" content="2019-08-12T14:33:19.475Z">
+<meta property="og:updated_time" content="2019-08-14T13:11:39.272Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="开源框架gunthercox&#x2F;ChatterBot浅析">
 <meta name="twitter:description" content="简单梳理一下github上开源的一个聊天机器人框架：gunthercox/ChatterBot，内容主要包含工作流程，训练器和逻辑适配器三部分。由于作者初涉chatbot这一领域，所以对某些部分的理解可能不到位，敬请谅解。">
@@ -174,6 +174,28 @@
         
         
           
+          <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
           <li class="menu-item menu-item-archives">
       
     
@@ -267,11 +289,21 @@
                 
               
 
-              <time title="创建时间：2019-08-12 16:57:13 / 修改时间：22:33:19" itemprop="dateCreated datePublished" datetime="2019-08-12T16:57:13+08:00">2019-08-12</time>
+              <time title="创建时间：2019-08-12 16:57:13" itemprop="dateCreated datePublished" datetime="2019-08-12T16:57:13+08:00">2019-08-12</time>
             </span>
           
             
 
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-08-14 21:11:39" itemprop="dateModified" datetime="2019-08-14T21:11:39+08:00">2019-08-14</time>
+              </span>
             
           
             <span class="post-meta-item">
@@ -290,6 +322,15 @@
             </span>
           
 
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon"
+              >
+                <i class="fa fa-eye"></i>
+                 阅读次数： 
+                <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+              </span>
+            </span>
           <br>
             <div class="post-description">简单梳理一下github上开源的一个聊天机器人框架：gunthercox/ChatterBot，内容主要包含工作流程，训练器和逻辑适配器三部分。由于作者初涉chatbot这一领域，所以对某些部分的理解可能不到位，敬请谅解。</div>
           
@@ -318,12 +359,38 @@
 <h2 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h2><p>与通常所讲的NLP预处理的目的基本一致，主要是文本进行一些标准还操作，比如去除连续的空格、删除特殊字符等等。Chatterbot框架自身实现了<code>clean_whitespace</code>, <code>unescape_html</code>和<code>convert_to_ascii</code>三种预处理功能。具体实现参见<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/preprocessors.py" target="_blank" rel="noopener">preprocessors.py</a></p>
 <h2 id="生成答案"><a href="#生成答案" class="headerlink" title="生成答案"></a>生成答案</h2><p>一个Chatterbot实例可以绑定多个逻辑适配器，用于根据输入产生输出。</p>
 <p>Chatterbot中没有独立的用于选择对话逻辑的意图识别模块，它将意图识别的功能放到了各个逻辑适配器中。接收到输入之后，Chatterbot会将其传递给各个逻辑适配器，由它们自己判断是否适合对输入的文本进行回答。如果逻辑适配器认为不能对输入进行回答，则会跳过，否则就输出回答，这样的话，有可能所有逻辑适配器都不输出回答，也有可能有多个逻辑适配器都给出了回答。具体请参考：<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/chatterbot.py" target="_blank" rel="noopener">ChatBot::generate_response</a>方法。</p>
-<p>从<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/chatterbot.py" target="_blank" rel="noopener">ChatBot::__init__</a>中的以下两段代码</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">self.storage = utils.initialize_class(storage_adapter, **kwargs)</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> adapter <span class="keyword">in</span> logic_adapters:</span><br><span class="line">    utils.validate_adapter_class(adapter, LogicAdapter)</span><br><span class="line">    logic_adapter = utils.initialize_class(adapter, self, **kwargs)</span><br><span class="line">    self.logic_adapters.append(logic_adapter)</span><br></pre></td></tr></table></figure>
+<p>从<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/chatterbot.py" target="_blank" rel="noopener">ChatBot::__init__和Chatbot::generate_response</a>中的两端代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># __init__</span></span><br><span class="line">self.storage = utils.initialize_class(storage_adapter, **kwargs)</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment"># generate_response</span></span><br><span class="line"><span class="keyword">for</span> adapter <span class="keyword">in</span> logic_adapters:</span><br><span class="line">    utils.validate_adapter_class(adapter, LogicAdapter)</span><br><span class="line">    logic_adapter = utils.initialize_class(adapter, self, **kwargs)</span><br><span class="line">    self.logic_adapters.append(logic_adapter)</span><br></pre></td></tr></table></figure>
 
 <p>可知，所有的逻辑适配器都共享一份保存的对话语料。倘若逻辑适配器内部不对数据进行选择的话，所有的逻辑适配器都将从所有的对话语料数据中查找最匹配的回答。这样的结果就是，每个逻辑适配器在相同的数据上用不同的匹配方法或指标产生回答，衡量每个回答confidence的标准并不一致，这会影响后续根据confidence进行答案选择。</p>
-<p>先写到这里，剩下的后面再写 ^_^。</p>
-<h2 id="答案选择"><a href="#答案选择" class="headerlink" title="答案选择"></a>答案选择</h2><h1 id="训练器"><a href="#训练器" class="headerlink" title="训练器"></a>训练器</h1><h1 id="逻辑适配器"><a href="#逻辑适配器" class="headerlink" title="逻辑适配器"></a>逻辑适配器</h1>
+<h2 id="答案选择"><a href="#答案选择" class="headerlink" title="答案选择"></a>答案选择</h2><p><a href="#工作流程">工作流程示意图</a>显示，Chatterbot会从所有的逻辑适配器返回的回答中，选择confidence最大的，但是<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/chatterbot.py" target="_blank" rel="noopener">ChatBot::generate_response</a>实现的是另外一种逻辑。在<code>Chatbot::generate_response</code>中，每个逻辑适配器输出的<strong>confidence并没有用到</strong>，它会统计每一个返回的回答出现的次数，如果有出现次数大于1次的，则会返回出现次数最多的回答，<strong>但是如果所有逻辑适配器返回的回答都只出现了一次，则会第一个逻辑适配器的答案，个人认为这种逻辑存在缺陷</strong>。以下是相关代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># If multiple adapters agree on the same statement,</span></span><br><span class="line"><span class="comment"># then that statement is more likely to be the correct response</span></span><br><span class="line"><span class="keyword">if</span> len(results) &gt;= <span class="number">3</span>:</span><br><span class="line">    result_options = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> result_option <span class="keyword">in</span> results:</span><br><span class="line">        result_string = result_option.text + <span class="string">':'</span> + (result_option.in_response_to <span class="keyword">or</span> <span class="string">''</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> result_string <span class="keyword">in</span> result_options:</span><br><span class="line">            result_options[result_string].count += <span class="number">1</span></span><br><span class="line">            <span class="keyword">if</span> result_options[result_string].statement.confidence &lt; result_option.confidence:</span><br><span class="line">                result_options[result_string].statement = result_option</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            result_options[result_string] = ResultOption(</span><br><span class="line">                result_option</span><br><span class="line">            )</span><br><span class="line"></span><br><span class="line">    most_common = list(result_options.values())[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> result_option <span class="keyword">in</span> result_options.values():</span><br><span class="line">        <span class="keyword">if</span> result_option.count &gt; most_common.count:</span><br><span class="line">            most_common = result_option</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> most_common.count &gt; <span class="number">1</span>:</span><br><span class="line">        result = most_common.statement</span><br></pre></td></tr></table></figure>
+
+<h1 id="训练器"><a href="#训练器" class="headerlink" title="训练器"></a>训练器</h1><p>刚开始的时候，以为这里的训练跟普通的训练是一样的，也就是通过数据+训练过程确定模型的参数。实际上，这里的训练过程<strong>不能算作真正的训练，有点跟KNN算法的训练过程差不多</strong>（KNN也没有真正意义上的训练过程），所谓的训练过程其实就是准备检索数据的过程。结合<a href="https://chatterbot.readthedocs.io/en/stable/training.html" target="_blank" rel="noopener">文档示例</a>和  <a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/trainers.py" target="_blank" rel="noopener">ListTrainer</a> 可以看出Chatterbot框架中的训练过程实际上是怎样的。</p>
+<p>文档中的示例</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> chatbot <span class="keyword">import</span> chatbot</span><br><span class="line"><span class="keyword">from</span> chatterbot.trainers <span class="keyword">import</span> ListTrainer</span><br><span class="line"></span><br><span class="line">trainer = ListTrainer(chatbot)</span><br><span class="line"></span><br><span class="line">trainer.train([</span><br><span class="line">    <span class="string">"Hi there!"</span>,</span><br><span class="line">    <span class="string">"Hello"</span>,</span><br><span class="line">])</span><br><span class="line"></span><br><span class="line">trainer.train([</span><br><span class="line">    <span class="string">"Greetings!"</span>,</span><br><span class="line">    <span class="string">"Hello"</span>,</span><br><span class="line">])</span><br></pre></td></tr></table></figure>
+
+<p><code>ListTrainer</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ListTrainer</span><span class="params">(Trainer)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Allows a chat bot to be trained using a list of strings</span></span><br><span class="line"><span class="string">    where the list represents a conversation.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">train</span><span class="params">(self, conversation)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        Train the chat bot based on the provided list of</span></span><br><span class="line"><span class="string">        statements that represents a single conversation.</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        previous_statement_text = <span class="literal">None</span></span><br><span class="line">        previous_statement_search_text = <span class="string">''</span></span><br><span class="line"></span><br><span class="line">        statements_to_create = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> conversation_count, text <span class="keyword">in</span> enumerate(conversation):</span><br><span class="line">            <span class="keyword">if</span> self.show_training_progress:</span><br><span class="line">                utils.print_progress_bar(</span><br><span class="line">                    <span class="string">'List Trainer'</span>,</span><br><span class="line">                    conversation_count + <span class="number">1</span>, len(conversation)</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">            statement_search_text = self.chatbot.storage.tagger.get_text_index_string(text)</span><br><span class="line"></span><br><span class="line">            statement = self.get_preprocessed_statement(</span><br><span class="line">                Statement(</span><br><span class="line">                    text=text,</span><br><span class="line">                    search_text=statement_search_text,</span><br><span class="line">                    in_response_to=previous_statement_text,</span><br><span class="line">                    search_in_response_to=previous_statement_search_text,</span><br><span class="line">                    conversation=<span class="string">'training'</span></span><br><span class="line">                )</span><br><span class="line">            )</span><br><span class="line"></span><br><span class="line">            previous_statement_text = statement.text</span><br><span class="line">            previous_statement_search_text = statement_search_text</span><br><span class="line"></span><br><span class="line">            statements_to_create.append(statement)</span><br><span class="line"></span><br><span class="line">        self.chatbot.storage.create_many(statements_to_create)</span><br></pre></td></tr></table></figure>
+
+<p>对话语料的保存并不是以<strong>文本对</strong>为单位的，而是把每一句话作为最基本的存储单元，语句之间的关系通过<code>*in_response_to</code>字段表示。如下述代码所示，<code>Statement</code>本身的<code>text</code>是用来回答<code>in_response_to</code>对应的<code>previous_statement_text</code>这句话的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Statement(</span><br><span class="line">    text=text,</span><br><span class="line">    search_text=statement_search_text,</span><br><span class="line">    in_response_to=previous_statement_text,</span><br><span class="line">    search_in_response_to=previous_statement_search_text,</span><br><span class="line">    conversation=<span class="string">'training'</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h1 id="逻辑适配器"><a href="#逻辑适配器" class="headerlink" title="逻辑适配器"></a>逻辑适配器</h1><p>逻辑适配器主要用于根据输入文本产生相应的回答。Chatterbot本身实现了一个<a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/logic/best_match.py" target="_blank" rel="noopener">BestMatch</a>的逻辑适配器，它会从保存的对话语料中找出与输入文本最匹配的回答，其基本检索流程是：</p>
+<ol>
+<li>根据某一相似度度量指标，从保存的对话语料中找到与输入文本最相似的文本 mtext。</li>
+<li>遍历整个对话语料，找出所有可以用来回答m_text的文本。</li>
+</ol>
+<p>从上述步骤可以看出， <code>BestMatch</code>找到回答需要遍历两次保存的对话语料，在实现方式上可能不是最优的。</p>
+<p>具体流程参考 <a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/logic/best_match.py" target="_blank" rel="noopener">BestMatch::process</a>。</p>
+<p>在文本相似度度量上，Chatterbot本身已经实现了多种不同的方法：</p>
+<ol>
+<li>LevenshteinDistance-编辑距离</li>
+<li>JaccardSimilarity</li>
+<li>使用Spacy计算的相似度</li>
+</ol>
+<p>具体请参考 <a href="https://github.com/gunthercox/ChatterBot/blob/master/chatterbot/comparisons.py" target="_blank" rel="noopener">comparisons.py</a>。</p>
+
     </div>
 
     
@@ -334,17 +401,17 @@
           
         
         <div class="post-tags">
-            <a href="/tags/NLP/" rel="tag"># NLP</a>
+            <a href="/tags/NLP/" rel="tag"><i class="fa fa-tag"></i> NLP</a>
           
-            <a href="/tags/chatbot/" rel="tag"># chatbot</a>
+            <a href="/tags/chatbot/" rel="tag"><i class="fa fa-tag"></i> chatbot</a>
           
-            <a href="/tags/开源框架/" rel="tag"># 开源框架</a>
+            <a href="/tags/开源框架/" rel="tag"><i class="fa fa-tag"></i> 开源框架</a>
           
         </div>
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
-              <a href="/2019/08/08/chatbot-wechat/" rel="next" title="闻言、名义、知心——你的智能伙伴，聊天机器人">
-                <i class="fa fa-chevron-left"></i> 闻言、名义、知心——你的智能伙伴，聊天机器人
+              <a href="/2019/08/08/chatbot-wechat/" rel="next" title="闻言、明义、知心——你的智能伙伴，聊天机器人">
+                <i class="fa fa-chevron-left"></i> 闻言、明义、知心——你的智能伙伴，聊天机器人
               </a>
             
           </div>
@@ -352,6 +419,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+              <a href="/2019/08/15/use-cases-of-model-insights/" rel="prev" title="Use cases for model insights —— 模型可解释性的应用场景">
+                Use cases for model insights —— 模型可解释性的应用场景 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
     </footer>
@@ -406,7 +477,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">3</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -415,19 +486,29 @@
       
       <div class="site-state-item site-state-categories">
         
+          
+            <a href="/categories/">
+          
+        
         
         
           
         
-        <span class="site-state-item-count">1</span>
-        <span class="site-state-item-name">分类</span>
+          
         
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
       </div>
     
       
       
       <div class="site-state-item site-state-tags">
         
+          
+            <a href="/tags/">
+          
+        
         
         
           
@@ -436,9 +517,15 @@
         
           
         
-        <span class="site-state-item-count">3</span>
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span>
-        
+        </a>
       </div>
     
   </nav>
@@ -496,6 +583,25 @@
 </div>
 
         
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
 
 
 
