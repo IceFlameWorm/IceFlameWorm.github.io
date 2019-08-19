@@ -57,19 +57,22 @@
   };
 </script>
 
-  <meta name="description" content="在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。">
+  <meta name="description" content="当训练得到一个模型之后，除了对模型的预测感兴趣之外，我们往往还想知道模型中哪些特征更重要，哪些特征对对预测结果的影响最大。Permutaion Importance，排列重要性，就是一种衡量特种重要性的方法。">
 <meta name="keywords" content="machine learning,data mining,可解释性">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Use cases for model insights —— 模型可解释性的应用场景">
-<meta property="og:url" content="http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/index.html">
+<meta property="og:title" content="Permutaion Importance —— 排列重要性">
+<meta property="og:url" content="http://iceflameworm.github.io/2019/08/17/permutaion-importance/index.html">
 <meta property="og:site_name" content="冰焰虫子">
-<meta property="og:description" content="在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。">
+<meta property="og:description" content="当训练得到一个模型之后，除了对模型的预测感兴趣之外，我们往往还想知道模型中哪些特征更重要，哪些特征对对预测结果的影响最大。Permutaion Importance，排列重要性，就是一种衡量特种重要性的方法。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-17T08:37:03.483Z">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/17/permutaion-importance/pi_demo_1.jpg">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/17/permutaion-importance/pi_demo_2.jpg">
+<meta property="og:updated_time" content="2019-08-19T14:43:14.519Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Use cases for model insights —— 模型可解释性的应用场景">
-<meta name="twitter:description" content="在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。">
-  <link rel="canonical" href="http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/">
+<meta name="twitter:title" content="Permutaion Importance —— 排列重要性">
+<meta name="twitter:description" content="当训练得到一个模型之后，除了对模型的预测感兴趣之外，我们往往还想知道模型中哪些特征更重要，哪些特征对对预测结果的影响最大。Permutaion Importance，排列重要性，就是一种衡量特种重要性的方法。">
+<meta name="twitter:image" content="http://iceflameworm.github.io/2019/08/17/permutaion-importance/pi_demo_1.jpg">
+  <link rel="canonical" href="http://iceflameworm.github.io/2019/08/17/permutaion-importance/">
 
 
 <script id="page.configurations">
@@ -78,7 +81,7 @@
   };
 </script>
 
-  <title>Use cases for model insights —— 模型可解释性的应用场景 | 冰焰虫子</title>
+  <title>Permutaion Importance —— 排列重要性 | 冰焰虫子</title>
   
 
 
@@ -253,7 +256,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/08/17/permutaion-importance/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Aaron Li">
@@ -267,7 +270,7 @@
       <header class="post-header">
 
         
-          <h1 class="post-title" itemprop="name headline">Use cases for model insights —— 模型可解释性的应用场景
+          <h1 class="post-title" itemprop="name headline">Permutaion Importance —— 排列重要性
 
               
             
@@ -287,7 +290,7 @@
                 
               
 
-              <time title="创建时间：2019-08-15 17:00:33" itemprop="dateCreated datePublished" datetime="2019-08-15T17:00:33+08:00">2019-08-15</time>
+              <time title="创建时间：2019-08-17 16:23:26" itemprop="dateCreated datePublished" datetime="2019-08-17T16:23:26+08:00">2019-08-17</time>
             </span>
           
             
@@ -300,7 +303,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-08-17 16:37:03" itemprop="dateModified" datetime="2019-08-17T16:37:03+08:00">2019-08-17</time>
+                <time title="修改时间：2019-08-19 22:43:14" itemprop="dateModified" datetime="2019-08-19T22:43:14+08:00">2019-08-19</time>
               </span>
             
           
@@ -330,7 +333,7 @@
               </span>
             </span>
           <br>
-            <div class="post-description">在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。</div>
+            <div class="post-description">当训练得到一个模型之后，除了对模型的预测感兴趣之外，我们往往还想知道模型中哪些特征更重要，哪些特征对对预测结果的影响最大。Permutaion Importance，排列重要性，就是一种衡量特种重要性的方法。</div>
           
 
         </div>
@@ -342,33 +345,41 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>转载请注明来源：<a href="http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/">http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/</a></p>
+        <p>转载请注明来源：<a href="http://iceflameworm.github.io/2019/08/17/permutation-importance/">http://iceflameworm.github.io/2019/08/17/permutation-importance/</a></p>
 <p>在推广数据分析、挖掘以及模型训练结果的时候，经常遇到客户或业务方需要我们对其进行解读。如果不能让客户或业务方很好地理解或者接受的话，“数据民工们”的工作成果就很难被有效地推行下去，哎，宝宝们都很苦啊。</p>
 <p>最近忽然想起之前在逛kaggle的时候看到过有模型解释性相关的课程，于是就回头温习下，梳理下要点，一来加深自己的理解，也方便感兴趣的同学阅读。</p>
-<p>这是第一节：<a href="https://www.kaggle.com/dansbecker/use-cases-for-model-insights" target="_blank" rel="noopener">Use cases for model insights</a></p>
-<h1 id="做什么？"><a href="#做什么？" class="headerlink" title="做什么？"></a>做什么？</h1><p>很多人把各种机器学习模型看作是黑盒子，因为虽然这些模型给出的预测结果还不错，但是你却无法理解这些预测背后的逻辑。</p>
-<p>要加深对模型结果的理解，可以从以下几个方面入手</p>
+<p>这是第二节：<a href="https://www.kaggle.com/dansbecker/permutation-importance" target="_blank" rel="noopener">Permutaion Importance</a></p>
+<h1 id="作用与特点"><a href="#作用与特点" class="headerlink" title="作用与特点"></a>作用与特点</h1><p>训练得到一个模型之后，我们可能会问的一个最基本的问题是 哪些特征对预测结果的影响最大？</p>
+<p>这一概念叫做 <strong>特征重要性</strong>。</p>
+<p>有很多度量特征重要性的方法。一些方法回答的问题与上述问题略有不同，而另外一些方法则具有一些documented shortcomings (暂译为：记录的缺点)。</p>
+<p>与其它方法相比，排列重要性具有以下优点：</p>
 <ol>
-<li>训练出的模型认为哪些特征很重要？</li>
-<li>对于任意一个数据样本，每一个特征是如何影响其预测结果的。</li>
-<li>从宏观意义上讲，每个特征是如何影响模型在整体上的预测结果的。</li>
+<li>计算速度快</li>
+<li>应用广泛、易于理解</li>
+<li>与我们期望一个特征重要性度量所具有的性质一致</li>
 </ol>
-<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>对模型结果的解释可应用到以下这些场景当中：</p>
+<h1 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h1><p>排列重要性使用模型的方式与你迄今为止所见到过的都不同，而且在一开始，很多人都会对其感到很困惑。所以首先举一个例子来具体介绍以下它。</p>
+<p>假定有以下格式的数据集：</p>
+<p><img src="pi_demo_1.jpg" alt="img"></p>
+<p>我们想用一个人10岁的数据去预测他20岁的身高是多少？</p>
+<p>数据中包含：</p>
+<ul>
+<li>有用的特征（10岁时的身高）</li>
+<li>较弱的特征（10岁时拥有的股票）</li>
+<li>对预测基本没有作用的特征</li>
+</ul>
+<p><strong>排列重要性是要在模型拟合之后才能进行计算。</strong> 所以对于给定的身高、股票数量等取值之后，计算排列重要性并不会改变模型或者是它的预测结果。</p>
+<p>相反，我们会问以下问题：如果随机打乱验证数据某一列的值，保持目标列以及其它列的数据不变，那么这种操作会在这些打乱的数据上对预测准确率产生怎样的影响？</p>
+<p><img src="pi_demo_2.jpg" alt="img"></p>
+<p>对某一列进行随机排序应当会降低预测的准确率，这是因为产生的数据不再对应于现实世界中的任何东西。如果随机打乱的那一列模型预测对其依赖程度很高，那么模型准确率的衰减程度就会更大。在这个例子中，打乱<code>height at age 10</code>将会让预测结果非常差。但是如果我们随机打乱的是<code>socks owned</code>，那么产生的预测结果就不会衰减得那么厉害。</p>
+<p>有了上述认识之后，排列重要性就按照以下步骤进行计算：</p>
 <ol>
-<li>模型调试</li>
-<li>特征工程</li>
-<li>数据收集</li>
-<li>决策制定</li>
-<li>建立信任</li>
+<li>得到一个训练好的模型</li>
+<li>打乱某一列数据的值，然后在得到的数据集上进行预测。用预测值和真实的目标值计算损失函数因为随机排序升高了多少。模型性能的衰减量代表了打乱顺序的那一列的重要程度。</li>
+<li>将打乱的那一列复原，在下一列数据上重复第2步操作，直到计算出了每一列的重要性。</li>
 </ol>
-<h2 id="模型调试"><a href="#模型调试" class="headerlink" title="模型调试"></a>模型调试</h2><p>在实际应用场景中，往往会存在很多不可靠、组织混乱和存在污染的数据。在对数据进行预处理的时候，很有可能在不经意间就会引入潜在的错误源。在实际的数据科学项目中，在某些地方出现错误是很正常的事情。</p>
-<p>因为bug会频繁出现，且可能会引起灾难性的后果，所以模型调式数据科学领域最重要的技能之一。<strong>理解模型发现的模式会帮你确定什么时候它们跟你所掌握的知识不一致</strong>，而这通常才是追踪bug原因第一步而已。</p>
-<h2 id="特征工程"><a href="#特征工程" class="headerlink" title="特征工程"></a>特征工程</h2><p>一般情况下，特征工程是提升模型准确率最有效的方法。通常，特征工程需要不断地在原有数据或已创建的特征上进行变换，来产生新的特征。</p>
-<p>在数据量、维度都比较小的情况下，有时你只靠自身对问题的直觉，就可以完成这一过程。但是当你需要处理<strong>成百上千的原始特征</strong>，或者并<strong>不太了解问题的背景的时候</strong>，你就需要更多的指导和建议了。</p>
-<h2 id="数据收集"><a href="#数据收集" class="headerlink" title="数据收集"></a>数据收集</h2><p>对于从网上下载的数据集，你是无法控制的。但是很多使用数据科学的企业和组织都有机会扩展所收集数据的类型。因为<strong>收集新类型的数据可能成本会很高，或者非常麻烦</strong>，所以只有在清楚这么做是划算的时候，企业和组织才会去做。<strong>基于模型的解释会帮你更好地理解现有特征地价值，进而推断出哪些新数据可能是最有帮助的。</strong></p>
-<h2 id="决策制定"><a href="#决策制定" class="headerlink" title="决策制定"></a>决策制定</h2><p>某些情况下，模型会直接自动做出决策，但是有很多重要的决策是需要人来确定。<strong>对于最终需要人来做的决策，模型的可解释性比单纯的预测结果更重要</strong>。</p>
-<h2 id="建立信任"><a href="#建立信任" class="headerlink" title="建立信任"></a>建立信任</h2><p>许多人在确定一些基本的事实之前，不会信赖你用来做重要决策的模型。鉴于数据错误的频繁出现，这是一种明智的防范措施。在实际业务场景中，如果<strong>给出的模型解释符合对方自身对问题的理解</strong>，那么即使在基本不具备深入的数据科学知识的人之间，也将有助于建立互相信任的关系。</p>
-
+<p>未完待寻… ^_^</p>
+<h1 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h1><h1 id="解读排列重要性"><a href="#解读排列重要性" class="headerlink" title="解读排列重要性"></a>解读排列重要性</h1>
     </div>
 
     
@@ -388,8 +399,8 @@
         </div>
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
-              <a href="/2019/08/12/chatterbot-github/" rel="next" title="开源框架gunthercox/ChatterBot浅析">
-                <i class="fa fa-chevron-left"></i> 开源框架gunthercox/ChatterBot浅析
+              <a href="/2019/08/15/use-cases-of-model-insights/" rel="next" title="Use cases for model insights —— 模型可解释性的应用场景">
+                <i class="fa fa-chevron-left"></i> Use cases for model insights —— 模型可解释性的应用场景
               </a>
             
           </div>
@@ -397,10 +408,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-              <a href="/2019/08/17/permutaion-importance/" rel="prev" title="Permutaion Importance —— 排列重要性">
-                Permutaion Importance —— 排列重要性 <i class="fa fa-chevron-right"></i>
-              </a>
-            
           </div>
         </div>
     </footer>
@@ -535,7 +542,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#做什么？"><span class="nav-number">1.</span> <span class="nav-text">做什么？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应用场景"><span class="nav-number">2.</span> <span class="nav-text">应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#模型调试"><span class="nav-number">2.1.</span> <span class="nav-text">模型调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特征工程"><span class="nav-number">2.2.</span> <span class="nav-text">特征工程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据收集"><span class="nav-number">2.3.</span> <span class="nav-text">数据收集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#决策制定"><span class="nav-number">2.4.</span> <span class="nav-text">决策制定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#建立信任"><span class="nav-number">2.5.</span> <span class="nav-text">建立信任</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#作用与特点"><span class="nav-number">1.</span> <span class="nav-text">作用与特点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#工作原理"><span class="nav-number">2.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码示例"><span class="nav-number">3.</span> <span class="nav-text">代码示例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解读排列重要性"><span class="nav-number">4.</span> <span class="nav-text">解读排列重要性</span></a></li></ol></div>
             
 
           </div>
