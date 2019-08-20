@@ -61,8 +61,50 @@ description: 当训练得到一个模型之后，除了对模型的预测感兴�
 2. 打乱某一列数据的值，然后在得到的数据集上进行预测。用预测值和真实的目标值计算损失函数因为随机排序升高了多少。模型性能的衰减量代表了打乱顺序的那一列的重要程度。
 3. 将打乱的那一列复原，在下一列数据上重复第2步操作，直到计算出了每一列的重要性。
 
-未完待续... ^_^
-
 # 代码示例
 
-# 解读排列重要性
+下面的例子会用到这样一个模型，这个模型用球队的统计数据预测一个足球队会不会出现“全场最佳球员”。“全场最佳球员”奖是颁发给比赛里表现最好的球员的。我们现在关注的并不是建模的过程，所以下面的代码只是载入了数据，然后构建了一个很基础的模型。
+
+```python
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+
+data = pd.read_csv('../input/fifa-2018-match-statistics/FIFA 2018 Statistics.csv')
+y = (data['Man of the Match'] == "Yes")  # Convert from string "Yes"/"No" to binary
+feature_names = [i for i in data.columns if data[i].dtype in [np.int64]]
+X = data[feature_names]
+train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=1)
+my_model = RandomForestClassifier(random_state=0).fit(train_X, train_y)
+```
+
+下面演示如何用`eli5`库计算和展示排列重要性。
+
+```python
+import eli5
+from eli5.sklearn import PermutationImportance
+
+perm = PermutationImportance(my_model, random_state=1).fit(val_X, val_y)
+eli5.show_weights(perm, feature_names = val_X.columns.tolist())
+```
+
+输出结果：
+
+![img](pi_demo_3.jpg)
+
+# 排列重要性结果解读
+
+排在最上面的是最重要的特征，排在最下面是重要性最低的特征。
+
+每一行的第一个数字表示模型性能衰减了多少（在这个例子中，使用准确率作为性能度量）。
+
+跟数据科学里面的很多事情一样，在对某一打乱的特征提取重要性的时候，是存在随机性的，所以我们在计算排列重要性的时候，会通过多次打乱顺序的方式重复这一过程。在&plusmn;后面的数字表示标准差。
+
+偶尔你会看到负值的排列重要性。在这些情况中，在打乱的数据上得到预测结果比真实数据的准确率更高。这在所选特征与目标基本无关（重要性应该为0）的情况下会出现，但是随机的因素导致预测结果在打乱的数据上表现得更准确。就像这个例子一样，因为没有容忍随机性的空间，这种情况在小的数据集上很常见。
+
+在我们的例子中，最重要的特征是**Goals scored**，看上去似乎是说得通的。对于其他变量的排序是否令人意外，足球球迷可能会有比较直观的感觉。
+
+# 练习
+
+[kaggle小练习](https://www.kaggle.com/kernels/fork/1637562)
