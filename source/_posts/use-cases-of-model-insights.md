@@ -7,7 +7,7 @@ tags:
     - 可解释性
 categories: 可解释性
 description: 在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。
-copyright:true
+copyright: true
 ---
 
 转载请注明来源：http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/
