@@ -6,6 +6,7 @@ tags:
     - chatbot
 categories: chatbot
 description: 博客搭建的第一篇文章，就转发自己写的一篇软文吧, 主要聊一聊chatbot的各种形式，应用场景和简单的原理等。
+copyright: true
 ---
 
 ![img](baymax.gif)   

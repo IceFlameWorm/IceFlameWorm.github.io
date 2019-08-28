@@ -7,6 +7,7 @@ tags:
     - 可解释性
 categories: 可解释性
 description: 当训练得到一个模型之后，除了对模型的预测感兴趣之外，我们往往还想知道模型中哪些特征更重要，哪些特征对对预测结果的影响最大。Permutaion Importance，排列重要性，就是一种衡量特种重要性的方法。
+copyright: true
 ---
 
 转载请注明来源：http://iceflameworm.github.io/2019/08/17/permutation-importance/

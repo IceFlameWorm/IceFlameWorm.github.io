@@ -7,6 +7,7 @@ tags:
     - 开源框架
 categories: chatbot
 description: 简单梳理一下github上开源的一个聊天机器人框架：gunthercox/ChatterBot，内容主要包含工作流程，训练器和逻辑适配器三部分。由于作者初涉chatbot这一领域，所以对某些部分的理解可能不到位，敬请谅解。
+copyright: true
 ---
 
 转载请注明来源：http://iceflameworm.github.io/2019/08/12/chatterbot-github/
