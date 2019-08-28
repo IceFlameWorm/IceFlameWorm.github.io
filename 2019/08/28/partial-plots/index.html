@@ -57,14 +57,19 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="冰焰虫子">
-<meta property="og:url" content="http://iceflameworm.github.io/tags/data-mining/index.html">
+  <meta name="description" content="部分依赖图可以用来展示一个特征是怎样影响模型预测的。">
+<meta name="keywords" content="machine learning,data mining,可解释性">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Partial Dependence Plots —— 部分依赖图">
+<meta property="og:url" content="http://iceflameworm.github.io/2019/08/28/partial-plots/index.html">
 <meta property="og:site_name" content="冰焰虫子">
+<meta property="og:description" content="部分依赖图可以用来展示一个特征是怎样影响模型预测的。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-08-28T16:16:05.594Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="冰焰虫子">
-  <link rel="canonical" href="http://iceflameworm.github.io/tags/data-mining/">
+<meta name="twitter:title" content="Partial Dependence Plots —— 部分依赖图">
+<meta name="twitter:description" content="部分依赖图可以用来展示一个特征是怎样影响模型预测的。">
+  <link rel="canonical" href="http://iceflameworm.github.io/2019/08/28/partial-plots/">
 
 
 <script id="page.configurations">
@@ -73,7 +78,7 @@
   };
 </script>
 
-  <title>标签: data mining | 冰焰虫子</title>
+  <title>Partial Dependence Plots —— 部分依赖图 | 冰焰虫子</title>
   
 
 
@@ -112,7 +117,7 @@
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -167,7 +172,7 @@
         
         
           
-          <li class="menu-item menu-item-tags menu-item-active">
+          <li class="menu-item menu-item-tags">
       
     
 
@@ -205,27 +210,6 @@
     </ul>
     
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
     <div class="site-search">
       
   <div class="popup search-popup local-search-popup">
@@ -261,110 +245,180 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
   
   
   
-  <div class="post-block tag">
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/08/28/partial-plots/">
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>data mining<small>标签</small>
-        </h1>
-      </div>
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aaron Li">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冰焰虫子">
+    </span>
+      <header class="post-header">
+
+        
+          <h1 class="post-title" itemprop="name headline">Partial Dependence Plots —— 部分依赖图
+
+              
+            
+          </h1>
         
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
 
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2019/08/28/partial-plots/" itemprop="url">
+              
+                
+              
+
+              <time title="创建时间：2019-08-28 23:33:26" itemprop="dateCreated datePublished" datetime="2019-08-28T23:33:26+08:00">2019-08-28</time>
+            </span>
+          
             
-              <span itemprop="name">Partial Dependence Plots —— 部分依赖图</span>
+
             
-          </a>
-        
-      </h2>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-08-29 00:16:05" itemprop="dateModified" datetime="2019-08-29T00:16:05+08:00">2019-08-29</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/可解释性/" itemprop="url" rel="index"><span itemprop="name">可解释性</span></a></span>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-08-28T23:33:26+08:00"
-              content="2019-08-28">
-          08-28
-        </time>
-      </div>
+                
+                
+              
+            </span>
+          
 
-    </header>
-  </article>
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon"
+              >
+                <i class="fa fa-eye"></i>
+                 阅读次数： 
+                <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+              </span>
+            </span>
+          <br>
+            <div class="post-description">部分依赖图可以用来展示一个特征是怎样影响模型预测的。</div>
+          
 
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-        
+        <p>先写好标题，后面就开始写 ^_^</p>
 
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2019/08/17/permutaion-importance/" itemprop="url">
-            
-              <span itemprop="name">Permutaion Importance —— 排列重要性</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-08-17T16:23:26+08:00"
-              content="2019-08-17">
-          08-17
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2019/08/15/use-cases-of-model-insights/" itemprop="url">
-            
-              <span itemprop="name">Use cases for model insights —— 模型可解释性的应用场景</span>
-            
-          </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-08-15T17:00:33+08:00"
-              content="2019-08-15">
-          08-15
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-      
     </div>
 
+    
+    
+    
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>文章作者:</span><a href="/" title="访问 Aaron Li 的个人博客">Aaron Li</a></p>
+  <p><span>原始链接:</span><a href="/2019/08/28/partial-plots/" title="Partial Dependence Plots —— 部分依赖图">http://iceflameworm.github.io/2019/08/28/partial-plots/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://iceflameworm.github.io/2019/08/28/partial-plots/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+          
+    </div>
+
+    <footer class="post-footer">
+          
+        
+        <div class="post-tags">
+            <a href="/tags/machine-learning/" rel="tag"><i class="fa fa-tag"></i> machine learning</a>
+          
+            <a href="/tags/data-mining/" rel="tag"><i class="fa fa-tag"></i> data mining</a>
+          
+            <a href="/tags/可解释性/" rel="tag"><i class="fa fa-tag"></i> 可解释性</a>
+          
+        </div>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+              <a href="/2019/08/17/permutaion-importance/" rel="next" title="Permutaion Importance —— 排列重要性">
+                <i class="fa fa-chevron-left"></i> Permutaion Importance —— 排列重要性
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+          </div>
+        </div>
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
-
+  </div>
 
 
           </div>
           
+
 
         </div>
           
@@ -541,6 +595,10 @@
 
 
   
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
 
   <script src="/js/next-boot.js?v=7.2.0"></script>
 

@@ -67,7 +67,8 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://iceflameworm.github.io/2019/08/17/permutaion-importance/pi_demo_1.jpg">
 <meta property="og:image" content="http://iceflameworm.github.io/2019/08/17/permutaion-importance/pi_demo_2.jpg">
-<meta property="og:updated_time" content="2019-08-19T14:46:24.287Z">
+<meta property="og:image" content="http://iceflameworm.github.io/2019/08/17/permutaion-importance/pi_demo_3.jpg">
+<meta property="og:updated_time" content="2019-08-28T16:16:59.579Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Permutaion Importance —— 排列重要性">
 <meta name="twitter:description" content="当训练得到一个模型之后，除了对模型的预测感兴趣之外，我们往往还想知道模型中哪些特征更重要，哪些特征对对预测结果的影响最大。Permutaion Importance，排列重要性，就是一种衡量特种重要性的方法。">
@@ -303,7 +304,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-08-19 22:46:24" itemprop="dateModified" datetime="2019-08-19T22:46:24+08:00">2019-08-19</time>
+                <time title="修改时间：2019-08-29 00:16:59" itemprop="dateModified" datetime="2019-08-29T00:16:59+08:00">2019-08-29</time>
               </span>
             
           
@@ -378,13 +379,58 @@
 <li>打乱某一列数据的值，然后在得到的数据集上进行预测。用预测值和真实的目标值计算损失函数因为随机排序升高了多少。模型性能的衰减量代表了打乱顺序的那一列的重要程度。</li>
 <li>将打乱的那一列复原，在下一列数据上重复第2步操作，直到计算出了每一列的重要性。</li>
 </ol>
-<p>未完待续… ^_^</p>
-<h1 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h1><h1 id="解读排列重要性"><a href="#解读排列重要性" class="headerlink" title="解读排列重要性"></a>解读排列重要性</h1>
+<h1 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h1><p>下面的例子会用到这样一个模型，这个模型用球队的统计数据预测一个足球队会不会出现“全场最佳球员”。“全场最佳球员”奖是颁发给比赛里表现最好的球员的。我们现在关注的并不是建模的过程，所以下面的代码只是载入了数据，然后构建了一个很基础的模型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestClassifier</span><br><span class="line"></span><br><span class="line">data = pd.read_csv(<span class="string">'../input/fifa-2018-match-statistics/FIFA 2018 Statistics.csv'</span>)</span><br><span class="line">y = (data[<span class="string">'Man of the Match'</span>] == <span class="string">"Yes"</span>)  <span class="comment"># Convert from string "Yes"/"No" to binary</span></span><br><span class="line">feature_names = [i <span class="keyword">for</span> i <span class="keyword">in</span> data.columns <span class="keyword">if</span> data[i].dtype <span class="keyword">in</span> [np.int64]]</span><br><span class="line">X = data[feature_names]</span><br><span class="line">train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=<span class="number">1</span>)</span><br><span class="line">my_model = RandomForestClassifier(random_state=<span class="number">0</span>).fit(train_X, train_y)</span><br></pre></td></tr></table></figure>
+
+<p>下面演示如何用<code>eli5</code>库计算和展示排列重要性。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> eli5</span><br><span class="line"><span class="keyword">from</span> eli5.sklearn <span class="keyword">import</span> PermutationImportance</span><br><span class="line"></span><br><span class="line">perm = PermutationImportance(my_model, random_state=<span class="number">1</span>).fit(val_X, val_y)</span><br><span class="line">eli5.show_weights(perm, feature_names = val_X.columns.tolist())</span><br></pre></td></tr></table></figure>
+
+<p>输出结果：</p>
+<p><img src="pi_demo_3.jpg" alt="img"></p>
+<h1 id="排列重要性结果解读"><a href="#排列重要性结果解读" class="headerlink" title="排列重要性结果解读"></a>排列重要性结果解读</h1><p>排在最上面的是最重要的特征，排在最下面是重要性最低的特征。</p>
+<p>每一行的第一个数字表示模型性能衰减了多少（在这个例子中，使用准确率作为性能度量）。</p>
+<p>跟数据科学里面的很多事情一样，在对某一打乱的特征提取重要性的时候，是存在随机性的，所以我们在计算排列重要性的时候，会通过多次打乱顺序的方式重复这一过程。在&plusmn;后面的数字表示标准差。</p>
+<p>偶尔你会看到负值的排列重要性。在这些情况中，在打乱的数据上得到预测结果比真实数据的准确率更高。这在所选特征与目标基本无关（重要性应该为0）的情况下会出现，但是随机的因素导致预测结果在打乱的数据上表现得更准确。就像这个例子一样，因为没有容忍随机性的空间，这种情况在小的数据集上很常见。</p>
+<p>在我们的例子中，最重要的特征是<strong>Goals scored</strong>，看上去似乎是说得通的。对于其他变量的排序是否令人意外，足球球迷可能会有比较直观的感觉。</p>
+<h1 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h1><p><a href="https://www.kaggle.com/kernels/fork/1637562" target="_blank" rel="noopener">kaggle小练习</a></p>
+
     </div>
 
     
     
     
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>文章作者:</span><a href="/" title="访问 Aaron Li 的个人博客">Aaron Li</a></p>
+  <p><span>原始链接:</span><a href="/2019/08/17/permutaion-importance/" title="Permutaion Importance —— 排列重要性">http://iceflameworm.github.io/2019/08/17/permutaion-importance/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://iceflameworm.github.io/2019/08/17/permutaion-importance/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+          
+    </div>
 
     <footer class="post-footer">
           
@@ -408,6 +454,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+              <a href="/2019/08/28/partial-plots/" rel="prev" title="Partial Dependence Plots —— 部分依赖图">
+                Partial Dependence Plots —— 部分依赖图 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
     </footer>
@@ -462,7 +512,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -476,6 +526,8 @@
           
         
         
+        
+          
         
           
         
@@ -542,7 +594,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#作用与特点"><span class="nav-number">1.</span> <span class="nav-text">作用与特点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#工作原理"><span class="nav-number">2.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码示例"><span class="nav-number">3.</span> <span class="nav-text">代码示例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解读排列重要性"><span class="nav-number">4.</span> <span class="nav-text">解读排列重要性</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#作用与特点"><span class="nav-number">1.</span> <span class="nav-text">作用与特点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#工作原理"><span class="nav-number">2.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码示例"><span class="nav-number">3.</span> <span class="nav-text">代码示例</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#排列重要性结果解读"><span class="nav-number">4.</span> <span class="nav-text">排列重要性结果解读</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#练习"><span class="nav-number">5.</span> <span class="nav-text">练习</span></a></li></ol></div>
             
 
           </div>
