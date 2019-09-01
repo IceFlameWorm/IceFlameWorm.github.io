@@ -57,21 +57,21 @@
   };
 </script>
 
-  <meta name="description" content="这是第四节：SHAP VALUES 用途SHAP值（SHapley Additive exPlanations的缩写）从预测中把每一个特征的影响分解出来。可以把它应用到类似于下面的场景当中:  模型认为银行不应该给某人放贷，但是法律上需要银行给出每一笔拒绝放贷的原因。 医务人员想要确定对不同的病人而言，分别是哪些因素导致他们有患某种疾病的风险，这样就可以因人而异地采取针对性的卫生干预措施，直接处理">
+  <meta name="description" content="很多指标都是在总体样本上衡量特征的影响，但是针对某一特定样本，该如何表示各个特征对其预测结果的影响呢？针对某一样本的预测结果，SHAP值通过跟基线结果作比较，得出各个特征的取值分别对预测结果的影响程度。">
 <meta name="keywords" content="machine learning,data mining,可解释性">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SHAP VALUES —— 什么影响了你的决定？">
 <meta property="og:url" content="http://iceflameworm.github.io/2019/09/01/shap-values/index.html">
 <meta property="og:site_name" content="冰焰虫子">
-<meta property="og:description" content="这是第四节：SHAP VALUES 用途SHAP值（SHapley Additive exPlanations的缩写）从预测中把每一个特征的影响分解出来。可以把它应用到类似于下面的场景当中:  模型认为银行不应该给某人放贷，但是法律上需要银行给出每一笔拒绝放贷的原因。 医务人员想要确定对不同的病人而言，分别是哪些因素导致他们有患某种疾病的风险，这样就可以因人而异地采取针对性的卫生干预措施，直接处理">
+<meta property="og:description" content="很多指标都是在总体样本上衡量特征的影响，但是针对某一特定样本，该如何表示各个特征对其预测结果的影响呢？针对某一样本的预测结果，SHAP值通过跟基线结果作比较，得出各个特征的取值分别对预测结果的影响程度。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://iceflameworm.github.io/2019/09/01/shap-values/shap_graph_1.jpg">
 <meta property="og:image" content="http://iceflameworm.github.io/2019/09/01/shap-values/shap_graph_2.jpg">
 <meta property="og:image" content="http://iceflameworm.github.io/2019/09/01/shap-values/shap_graph_3.jpg">
-<meta property="og:updated_time" content="2019-09-01T08:31:40.581Z">
+<meta property="og:updated_time" content="2019-09-01T08:44:45.370Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SHAP VALUES —— 什么影响了你的决定？">
-<meta name="twitter:description" content="这是第四节：SHAP VALUES 用途SHAP值（SHapley Additive exPlanations的缩写）从预测中把每一个特征的影响分解出来。可以把它应用到类似于下面的场景当中:  模型认为银行不应该给某人放贷，但是法律上需要银行给出每一笔拒绝放贷的原因。 医务人员想要确定对不同的病人而言，分别是哪些因素导致他们有患某种疾病的风险，这样就可以因人而异地采取针对性的卫生干预措施，直接处理">
+<meta name="twitter:description" content="很多指标都是在总体样本上衡量特征的影响，但是针对某一特定样本，该如何表示各个特征对其预测结果的影响呢？针对某一样本的预测结果，SHAP值通过跟基线结果作比较，得出各个特征的取值分别对预测结果的影响程度。">
 <meta name="twitter:image" content="http://iceflameworm.github.io/2019/09/01/shap-values/shap_graph_1.jpg">
   <link rel="canonical" href="http://iceflameworm.github.io/2019/09/01/shap-values/">
 
@@ -291,7 +291,7 @@
                 
               
 
-              <time title="创建时间：2019-09-01 10:59:02 / 修改时间：16:31:40" itemprop="dateCreated datePublished" datetime="2019-09-01T10:59:02+08:00">2019-09-01</time>
+              <time title="创建时间：2019-09-01 10:59:02 / 修改时间：16:44:45" itemprop="dateCreated datePublished" datetime="2019-09-01T10:59:02+08:00">2019-09-01</time>
             </span>
           
             
@@ -324,6 +324,8 @@
               </span>
             </span>
           <br>
+            <div class="post-description">很多指标都是在总体样本上衡量特征的影响，但是针对某一特定样本，该如何表示各个特征对其预测结果的影响呢？针对某一样本的预测结果，SHAP值通过跟基线结果作比较，得出各个特征的取值分别对预测结果的影响程度。</div>
+          
 
         </div>
       </header>
