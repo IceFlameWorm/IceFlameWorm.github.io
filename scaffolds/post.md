@@ -4,7 +4,5 @@ date: {{ date }}
 tags:
 categories:
 description:
-copyright:
+copyright: true
 ---
-
-转载请注明来源：{{ url_for(page.path) }}
