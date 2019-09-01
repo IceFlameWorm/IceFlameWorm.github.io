@@ -247,6 +247,169 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/09/01/shap-values/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aaron Li">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冰焰虫子">
+    </span>
+      <header class="post-header">
+
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/09/01/shap-values/" class="post-title-link" itemprop="url">SHAP VALUES —— 什么影响了你的决定？</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-01 10:59:02 / 修改时间：16:31:40" itemprop="dateCreated datePublished" datetime="2019-09-01T10:59:02+08:00">2019-09-01</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/可解释性/" itemprop="url" rel="index"><span itemprop="name">可解释性</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          <br>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          
+            <p>这是第四节：<a href="https://www.kaggle.com/dansbecker/shap-values" target="_blank" rel="noopener">SHAP VALUES</a></p>
+<h1 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h1><p>SHAP值（SHapley Additive exPlanations的缩写）从预测中把每一个特征的影响分解出来。可以把它应用到类似于下面的场景当中:</p>
+<ul>
+<li>模型认为银行不应该给某人放贷，但是法律上需要银行给出每一笔拒绝放贷的原因。</li>
+<li>医务人员想要确定对不同的病人而言，分别是哪些因素导致他们有患某种疾病的风险，这样就可以因人而异地采取针对性的卫生干预措施，直接处理这些风险因素。</li>
+</ul>
+<h1 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h1><p>SHAP值通过与某一特征取基线值时的预测做对比，来解释该特征取某一特定值的影响。</p>
+<p>可以继续用<a href="http://iceflameworm.github.io/2019/08/17/permutaion-importance/">排列重要性</a>和<a href="http://iceflameworm.github.io/2019/08/28/partial-plots/">部分依赖图</a>中用到的例子进行解释。</p>
+<p>我们对一个球队会不会赢得“最佳球员”称号进行了预测。</p>
+<p>我们可能会有以下疑问：</p>
+<ul>
+<li>预测的结果有多大的程度是由球队进了3个球这一事实影响的？</li>
+</ul>
+<p>但是，如果我们像下面这样重新表述一下的话，那么给出具体、定量的答案还是比较容易的：</p>
+<ul>
+<li>预测的结果由多大的程度时由球队进了3个球这一事实影响的，而不是某些基线进球数？</li>
+</ul>
+<p>当然，每个球队都由很多特征，所以，如果我们能回答“进球数”的问题，那么我们也能对其它特征重复这一过程。</p>
+<p>SHAP值用一种保证良好性质的的方式做这件事。具体而言，用如下等式对预测进行分解：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sum(SHAP values for all features) = pred_for_team - pred_for_baseline_values</span><br></pre></td></tr></table></figure>
+
+<p>即，用所有特征的SHAP值的加和来解释为什么预测结果与基线不同。这就允许我们用像下面这样的一幅图来对预测进行分解：</p>
+<p><img src="shap_graph_1.jpg" alt="img"></p>
+<p>该怎么解释这幅图呢？</p>
+<p>我们预测的结果时0.7，而基准值是0.4979。引起预测增加的特征值是粉色的，它们的长度表示特征影响的程度。引起预测降低的特征值是蓝色的。最大的影源自<code>Goal Scored</code>等于2的时候。但<code>ball possesion</code>的值则对降低预测的值具有比较有意义的影响。</p>
+<p>如果把粉色条状图的长度与蓝色条状图的长度相减，差值就等于基准值到预测值之间的距离。</p>
+<p>要保证基线值加上每个特征各自影响的和等于预测值的话，在技术上还是有一些复杂度的（这并不像听上去那么直接）。我们不会研究这些细节，因为对于使用这项技术来说，这并不是很关键。<a href="https://towardsdatascience.com/one-feature-attribution-method-to-supposedly-rule-them-all-shapley-values-f3e04534983d" target="_blank" rel="noopener">这篇博客</a>对此做了比较长篇幅的技术解释。</p>
+<h1 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h1><p>这里，我们用<a href="https://github.com/slundberg/shap" target="_blank" rel="noopener">Shap库</a>计算SHAP值。</p>
+<p>沿用<a href="http://iceflameworm.github.io/2019/08/28/partial-plots/">部分依赖图</a>中用到的足球数据。</p>
+<p>input:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestClassifier</span><br><span class="line"></span><br><span class="line">data = pd.read_csv(<span class="string">'../input/fifa-2018-match-statistics/FIFA 2018 Statistics.csv'</span>)</span><br><span class="line">y = (data[<span class="string">'Man of the Match'</span>] == <span class="string">"Yes"</span>)  <span class="comment"># Convert from string "Yes"/"No" to binary</span></span><br><span class="line">feature_names = [i <span class="keyword">for</span> i <span class="keyword">in</span> data.columns <span class="keyword">if</span> data[i].dtype <span class="keyword">in</span> [np.int64, np.int64]]</span><br><span class="line">X = data[feature_names]</span><br><span class="line">train_X, val_X, train_y, val_y = train_test_split(X, y, random_state=<span class="number">1</span>)</span><br><span class="line">my_model = RandomForestClassifier(random_state=<span class="number">0</span>).fit(train_X, train_y)</span><br></pre></td></tr></table></figure>
+
+<p>看一下数据集某一行数据上的SHAP值（就随意第5行吧）。在查看SHAP值之前，先看一下最原始的预测值。</p>
+<p>input:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">row_to_show = <span class="number">5</span></span><br><span class="line">data_for_prediction = val_X.iloc[row_to_show]  <span class="comment"># use 1 row of data here. Could use multiple rows if desired</span></span><br><span class="line">data_for_prediction_array = data_for_prediction.values.reshape(<span class="number">1</span>, <span class="number">-1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">my_model.predict_proba(data_for_prediction_array)</span><br></pre></td></tr></table></figure>
+
+<p>output:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">array([[0.3, 0.7]])</span><br></pre></td></tr></table></figure>
+
+<p>该球队有70%的可能性赢得这一奖项。</p>
+<p>接下来是给上面那条预测计算SHAP值的代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> shap  <span class="comment"># package used to calculate Shap values</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Create object that can calculate shap values</span></span><br><span class="line">explainer = shap.TreeExplainer(my_model)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Calculate Shap values</span></span><br><span class="line">shap_values = explainer.shap_values(data_for_prediction)</span><br></pre></td></tr></table></figure>
+
+<p>上面的<code>shap_values</code>对象是一个包含两个array的list。第一个array是负向结果（不会获奖）的SHAP值，而第二个array是正向结果（获奖）的SHAP值。通常我们从预测正向结果的角度考虑模型的预测结果，所以我们会拿出正向结果的SHAP值（拿出<code>shap_values[1]</code>）。</p>
+<p>直接看原始array很麻烦，但是<code>shap</code>库提供一种不错的结果可视化的方式。</p>
+<p>input:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">shap.initjs()</span><br><span class="line">shap.force_plot(explainer.expected_value[<span class="number">1</span>], shap_values[<span class="number">1</span>], data_for_prediction)</span><br></pre></td></tr></table></figure>
+
+<p>output:</p>
+<p><img src="shap_graph_2.jpg" alt="img"></p>
+<p>如果仔细观察一下计算SHAP值的代码，就会发现在<code>shap.TreeExplainer(my_model)</code>中涉及到了树。但是<code>SHAP</code>库有用于各种模型的解释器。</p>
+<ul>
+<li><code>shap.DeepExplainer</code>适用于深度学习模型</li>
+<li><code>shap.KernelExplainer</code> 适用于各种模型，但是比其它解释器慢，它给出的是SHAP值的近似值而不是精确值。<br><code>下面是用</code>KernelExplainer<code>得到类似结果的例子。结果跟上面并不一致，这是因为</code>KernelExplainer`计算的是近似值，但是表达的意思是一样的。</li>
+</ul>
+<p>input:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># use Kernel SHAP to explain test set predictions</span></span><br><span class="line">k_explainer = shap.KernelExplainer(my_model.predict_proba, train_X)</span><br><span class="line">k_shap_values = k_explainer.shap_values(data_for_prediction)</span><br><span class="line">shap.force_plot(k_explainer.expected_value[<span class="number">1</span>], k_shap_values[<span class="number">1</span>], data_for_prediction)</span><br></pre></td></tr></table></figure>
+
+<p>output:</p>
+<p><img src="shap_graph_3.jpg" alt="img"></p>
+<h1 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h1><p><a href="https://www.kaggle.com/kernels/fork/1637226" target="_blank" rel="noopener">kaggle小练习</a></p>
+
+          
+        
+      
+    </div>
+
+    
+    
+    
+
+    <div>
+          
+    </div>
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+    
+      
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/08/28/partial-plots/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -296,7 +459,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-08-29 00:16:05" itemprop="dateModified" datetime="2019-08-29T00:16:05+08:00">2019-08-29</time>
+                <time title="修改时间：2019-09-01 10:57:31" itemprop="dateModified" datetime="2019-09-01T10:57:31+08:00">2019-09-01</time>
               </span>
             
           
@@ -327,7 +490,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          部分依赖图可以用来展示一个特征是怎样影响模型预测的。
+          部分依赖图可以用来展示一个特征是怎样影响模型预测的。可以用部分依赖图回答一些与下面这些类似的问题：1. 假如保持其它所有的特征不变，经纬度对房价有什么影响？换句话说，相同大小的房子，在不同的地方价格会有什么差别？2. 在两组不同的人群上，模型预测出的健康水平差异是由他们的负债水平引起的，还是另有原因？
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -872,7 +1035,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
