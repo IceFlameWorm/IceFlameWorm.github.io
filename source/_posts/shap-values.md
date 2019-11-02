@@ -6,7 +6,7 @@ tags:
     - data mining
     - 可解释性
 categories: 可解释性
-description: 
+description: 很多指标都是在总体样本上衡量特征的影响，但是针对某一特定样本，该如何表示各个特征对其预测结果的影响呢？针对某一样本的预测结果，SHAP值通过跟基线结果作比较，得出各个特征的取值分别对预测结果的影响程度。
 copyright: true
 ---
 
