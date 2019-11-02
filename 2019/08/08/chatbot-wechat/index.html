@@ -339,6 +339,24 @@
                 <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
               </span>
             </span>
+          
+            
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="fa fa-comment-o"></i>
+    </span>
+    
+      <span class="post-meta-item-text">评论数：</span>
+    
+  
+    <a href="/2019/08/08/chatbot-wechat/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/08/08/chatbot-wechat/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
           <br>
             <div class="post-description">博客搭建的第一篇文章，就转发自己写的一篇软文吧, 主要聊一聊chatbot的各种形式，应用场景和简单的原理等。</div>
           
@@ -465,6 +483,9 @@
 
           </div>
           
+    
+    <div class="comments" id="comments"></div>
+  
 
 
         </div>
@@ -717,6 +738,30 @@
 
 
 
+
+    
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'xVmVckG2v4FmVpK5BPqxbEXq-gzGzoHsz',
+    appKey: 'ctjxdQOYXjMtqjQoiayub8vA',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
 
 
 </body>

@@ -333,6 +333,24 @@
                 <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
               </span>
             </span>
+          
+            
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="fa fa-comment-o"></i>
+    </span>
+    
+      <span class="post-meta-item-text">评论数：</span>
+    
+  
+    <a href="/2019/08/17/permutaion-importance/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/08/17/permutaion-importance/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
           <br>
             <div class="post-description">当训练得到一个模型之后，除了对模型的预测感兴趣之外，我们往往还想知道模型中哪些特征更重要，哪些特征对对预测结果的影响最大。Permutaion Importance，排列重要性，就是一种衡量特种重要性的方法。</div>
           
@@ -472,6 +490,9 @@
 
           </div>
           
+    
+    <div class="comments" id="comments"></div>
+  
 
 
         </div>
@@ -724,6 +745,30 @@
 
 
 
+
+    
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'xVmVckG2v4FmVpK5BPqxbEXq-gzGzoHsz',
+    appKey: 'ctjxdQOYXjMtqjQoiayub8vA',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
 
 
 </body>

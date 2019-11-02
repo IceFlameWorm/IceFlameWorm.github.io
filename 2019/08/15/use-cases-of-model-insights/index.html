@@ -329,6 +329,24 @@
                 <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
               </span>
             </span>
+          
+            
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="fa fa-comment-o"></i>
+    </span>
+    
+      <span class="post-meta-item-text">评论数：</span>
+    
+  
+    <a href="/2019/08/15/use-cases-of-model-insights/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/08/15/use-cases-of-model-insights/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
           <br>
             <div class="post-description">在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。</div>
           
@@ -447,6 +465,9 @@
 
           </div>
           
+    
+    <div class="comments" id="comments"></div>
+  
 
 
         </div>
@@ -699,6 +720,30 @@
 
 
 
+
+    
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'xVmVckG2v4FmVpK5BPqxbEXq-gzGzoHsz',
+    appKey: 'ctjxdQOYXjMtqjQoiayub8vA',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
 
 
 </body>

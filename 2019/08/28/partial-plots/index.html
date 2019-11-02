@@ -335,6 +335,24 @@
                 <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
               </span>
             </span>
+          
+            
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="fa fa-comment-o"></i>
+    </span>
+    
+      <span class="post-meta-item-text">评论数：</span>
+    
+  
+    <a href="/2019/08/28/partial-plots/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/08/28/partial-plots/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
           <br>
             <div class="post-description">部分依赖图可以用来展示一个特征是怎样影响模型预测的。可以用部分依赖图回答一些与下面这些类似的问题：1. 假如保持其它所有的特征不变，经纬度对房价有什么影响？换句话说，相同大小的房子，在不同的地方价格会有什么差别？2. 在两组不同的人群上，模型预测出的健康水平差异是由他们的负债水平引起的，还是另有原因？</div>
           
@@ -483,6 +501,9 @@
 
           </div>
           
+    
+    <div class="comments" id="comments"></div>
+  
 
 
         </div>
@@ -735,6 +756,30 @@
 
 
 
+
+    
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'xVmVckG2v4FmVpK5BPqxbEXq-gzGzoHsz',
+    appKey: 'ctjxdQOYXjMtqjQoiayub8vA',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
 
 
 </body>
