@@ -7,6 +7,8 @@ tags:
     - 表格检测
     - 表格识别
     - 开源框架
-categries: 表格抽取
+categories: 表格抽取
 description: pdfplumber
 ---
+
+pdfplumber
