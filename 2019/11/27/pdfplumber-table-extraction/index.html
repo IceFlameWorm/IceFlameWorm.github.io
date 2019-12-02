@@ -57,19 +57,19 @@
   };
 </script>
 
-  <meta name="description" content="在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。">
-<meta name="keywords" content="machine learning,data mining,可解释性">
+  <meta name="description" content="pdfplumber">
+<meta name="keywords" content="表格抽取,表格检测,表格识别,开源框架">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Use cases for model insights —— 模型可解释性的应用场景">
-<meta property="og:url" content="http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/index.html">
+<meta property="og:title" content="pdfplumber是怎么做表格抽取的">
+<meta property="og:url" content="http://iceflameworm.github.io/2019/11/27/pdfplumber-table-extraction/index.html">
 <meta property="og:site_name" content="冰焰虫子">
-<meta property="og:description" content="在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。">
+<meta property="og:description" content="pdfplumber">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-08-28T16:19:19.855Z">
+<meta property="og:updated_time" content="2019-11-27T14:39:29.426Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Use cases for model insights —— 模型可解释性的应用场景">
-<meta name="twitter:description" content="在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。">
-  <link rel="canonical" href="http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/">
+<meta name="twitter:title" content="pdfplumber是怎么做表格抽取的">
+<meta name="twitter:description" content="pdfplumber">
+  <link rel="canonical" href="http://iceflameworm.github.io/2019/11/27/pdfplumber-table-extraction/">
 
 
 <script id="page.configurations">
@@ -78,7 +78,7 @@
   };
 </script>
 
-  <title>Use cases for model insights —— 模型可解释性的应用场景 | 冰焰虫子</title>
+  <title>pdfplumber是怎么做表格抽取的 | 冰焰虫子</title>
   
 
 
@@ -253,7 +253,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/11/27/pdfplumber-table-extraction/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Aaron Li">
@@ -267,7 +267,7 @@
       <header class="post-header">
 
         
-          <h1 class="post-title" itemprop="name headline">Use cases for model insights —— 模型可解释性的应用场景
+          <h1 class="post-title" itemprop="name headline">pdfplumber是怎么做表格抽取的
 
               
             
@@ -287,21 +287,11 @@
                 
               
 
-              <time title="创建时间：2019-08-15 17:00:33" itemprop="dateCreated datePublished" datetime="2019-08-15T17:00:33+08:00">2019-08-15</time>
+              <time title="创建时间：2019-11-27 17:42:49 / 修改时间：22:39:29" itemprop="dateCreated datePublished" datetime="2019-11-27T17:42:49+08:00">2019-11-27</time>
             </span>
           
             
 
-            
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-08-29 00:19:19" itemprop="dateModified" datetime="2019-08-29T00:19:19+08:00">2019-08-29</time>
-              </span>
             
           
             <span class="post-meta-item">
@@ -312,7 +302,7 @@
                 <span class="post-meta-item-text">分类于</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/可解释性/" itemprop="url" rel="index"><span itemprop="name">可解释性</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/表格抽取/" itemprop="url" rel="index"><span itemprop="name">表格抽取</span></a></span>
 
                 
                 
@@ -341,14 +331,14 @@
       <span class="post-meta-item-text">评论数：</span>
     
   
-    <a href="/2019/08/15/use-cases-of-model-insights/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/08/15/use-cases-of-model-insights/" itemprop="commentCount"></span>
+    <a href="/2019/11/27/pdfplumber-table-extraction/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/11/27/pdfplumber-table-extraction/" itemprop="commentCount"></span>
     </a>
   </span>
   
   
           <br>
-            <div class="post-description">在实际的业务当中，把模型训练出来绝对不是结束。如何确定模型的可靠性，如何让客户或业务方认可模型结果，如何通过模型指导运营和决策，以及如何推广模型落地应用等等一系列问题，都需要我们能够对模型结果进行比较清晰地解读。模型可解释性很重要，在许多地方都需要用到，对模型理解得越深刻，模型能发挥的作用也越大。</div>
+            <div class="post-description">pdfplumber</div>
           
 
         </div>
@@ -360,32 +350,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>转载请注明来源：<a href="http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/">http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/</a></p>
-<p>在推广数据分析、挖掘以及模型训练结果的时候，经常遇到客户或业务方需要我们对其进行解读。如果不能让客户或业务方很好地理解或者接受的话，“数据民工们”的工作成果就很难被有效地推行下去，哎，宝宝们都很苦啊。</p>
-<p>最近忽然想起之前在逛kaggle的时候看到过有模型解释性相关的课程，于是就回头温习下，梳理下要点，一来加深自己的理解，也方便感兴趣的同学阅读。</p>
-<p>这是第一节：<a href="https://www.kaggle.com/dansbecker/use-cases-for-model-insights" target="_blank" rel="noopener">Use cases for model insights</a></p>
-<h1 id="做什么？"><a href="#做什么？" class="headerlink" title="做什么？"></a>做什么？</h1><p>很多人把各种机器学习模型看作是黑盒子，因为虽然这些模型给出的预测结果还不错，但是你却无法理解这些预测背后的逻辑。</p>
-<p>要加深对模型结果的理解，可以从以下几个方面入手</p>
-<ol>
-<li>训练出的模型认为哪些特征很重要？</li>
-<li>对于任意一个数据样本，每一个特征是如何影响其预测结果的。</li>
-<li>从宏观意义上讲，每个特征是如何影响模型在整体上的预测结果的。</li>
-</ol>
-<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><p>对模型结果的解释可应用到以下这些场景当中：</p>
-<ol>
-<li>模型调试</li>
-<li>特征工程</li>
-<li>数据收集</li>
-<li>决策制定</li>
-<li>建立信任</li>
-</ol>
-<h2 id="模型调试"><a href="#模型调试" class="headerlink" title="模型调试"></a>模型调试</h2><p>在实际应用场景中，往往会存在很多不可靠、组织混乱和存在污染的数据。在对数据进行预处理的时候，很有可能在不经意间就会引入潜在的错误源。在实际的数据科学项目中，在某些地方出现错误是很正常的事情。</p>
-<p>因为bug会频繁出现，且可能会引起灾难性的后果，所以模型调式数据科学领域最重要的技能之一。<strong>理解模型发现的模式会帮你确定什么时候它们跟你所掌握的知识不一致</strong>，而这通常才是追踪bug原因第一步而已。</p>
-<h2 id="特征工程"><a href="#特征工程" class="headerlink" title="特征工程"></a>特征工程</h2><p>一般情况下，特征工程是提升模型准确率最有效的方法。通常，特征工程需要不断地在原有数据或已创建的特征上进行变换，来产生新的特征。</p>
-<p>在数据量、维度都比较小的情况下，有时你只靠自身对问题的直觉，就可以完成这一过程。但是当你需要处理<strong>成百上千的原始特征</strong>，或者并<strong>不太了解问题的背景的时候</strong>，你就需要更多的指导和建议了。</p>
-<h2 id="数据收集"><a href="#数据收集" class="headerlink" title="数据收集"></a>数据收集</h2><p>对于从网上下载的数据集，你是无法控制的。但是很多使用数据科学的企业和组织都有机会扩展所收集数据的类型。因为<strong>收集新类型的数据可能成本会很高，或者非常麻烦</strong>，所以只有在清楚这么做是划算的时候，企业和组织才会去做。<strong>基于模型的解释会帮你更好地理解现有特征地价值，进而推断出哪些新数据可能是最有帮助的。</strong></p>
-<h2 id="决策制定"><a href="#决策制定" class="headerlink" title="决策制定"></a>决策制定</h2><p>某些情况下，模型会直接自动做出决策，但是有很多重要的决策是需要人来确定。<strong>对于最终需要人来做的决策，模型的可解释性比单纯的预测结果更重要</strong>。</p>
-<h2 id="建立信任"><a href="#建立信任" class="headerlink" title="建立信任"></a>建立信任</h2><p>许多人在确定一些基本的事实之前，不会信赖你用来做重要决策的模型。鉴于数据错误的频繁出现，这是一种明智的防范措施。在实际业务场景中，如果<strong>给出的模型解释符合对方自身对问题的理解</strong>，那么即使在基本不具备深入的数据科学知识的人之间，也将有助于建立互相信任的关系。</p>
+        <p>pdfplumber</p>
 
     </div>
 
@@ -403,8 +368,8 @@
   <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
   <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   <p><span>文章作者:</span><a href="/" title="访问 Aaron Li 的个人博客">Aaron Li</a></p>
-  <p><span>原始链接:</span><a href="/2019/08/15/use-cases-of-model-insights/" title="Use cases for model insights —— 模型可解释性的应用场景">http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/</a>
-    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://iceflameworm.github.io/2019/08/15/use-cases-of-model-insights/"  aria-label="复制成功！"></i></span>
+  <p><span>原始链接:</span><a href="/2019/11/27/pdfplumber-table-extraction/" title="pdfplumber是怎么做表格抽取的">http://iceflameworm.github.io/2019/11/27/pdfplumber-table-extraction/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://iceflameworm.github.io/2019/11/27/pdfplumber-table-extraction/"  aria-label="复制成功！"></i></span>
   </p>
   <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
 </div>
@@ -429,17 +394,19 @@
           
         
         <div class="post-tags">
-            <a href="/tags/machine-learning/" rel="tag"><i class="fa fa-tag"></i> machine learning</a>
+            <a href="/tags/表格抽取/" rel="tag"><i class="fa fa-tag"></i> 表格抽取</a>
           
-            <a href="/tags/data-mining/" rel="tag"><i class="fa fa-tag"></i> data mining</a>
+            <a href="/tags/表格检测/" rel="tag"><i class="fa fa-tag"></i> 表格检测</a>
           
-            <a href="/tags/可解释性/" rel="tag"><i class="fa fa-tag"></i> 可解释性</a>
+            <a href="/tags/表格识别/" rel="tag"><i class="fa fa-tag"></i> 表格识别</a>
+          
+            <a href="/tags/开源框架/" rel="tag"><i class="fa fa-tag"></i> 开源框架</a>
           
         </div>
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
-              <a href="/2019/08/12/chatterbot-github/" rel="next" title="开源框架gunthercox/ChatterBot浅析">
-                <i class="fa fa-chevron-left"></i> 开源框架gunthercox/ChatterBot浅析
+              <a href="/2019/09/01/shap-values/" rel="next" title="SHAP VALUES —— 什么影响了你的决定？">
+                <i class="fa fa-chevron-left"></i> SHAP VALUES —— 什么影响了你的决定？
               </a>
             
           </div>
@@ -447,10 +414,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-              <a href="/2019/08/17/permutaion-importance/" rel="prev" title="Permutaion Importance —— 排列重要性">
-                Permutaion Importance —— 排列重要性 <i class="fa fa-chevron-right"></i>
-              </a>
-            
           </div>
         </div>
     </footer>
@@ -483,17 +446,8 @@
 
   <aside id="sidebar" class="sidebar">
     <div class="sidebar-inner">
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <div class="site-overview-wrap sidebar-panel">
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
 
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -586,23 +540,6 @@
 
         </div>
       </div>
-      <!--noindex-->
-        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-            
-            
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#做什么？"><span class="nav-number">1.</span> <span class="nav-text">做什么？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应用场景"><span class="nav-number">2.</span> <span class="nav-text">应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#模型调试"><span class="nav-number">2.1.</span> <span class="nav-text">模型调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#特征工程"><span class="nav-number">2.2.</span> <span class="nav-text">特征工程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据收集"><span class="nav-number">2.3.</span> <span class="nav-text">数据收集</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#决策制定"><span class="nav-number">2.4.</span> <span class="nav-text">决策制定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#建立信任"><span class="nav-number">2.5.</span> <span class="nav-text">建立信任</span></a></li></ol></li></ol></div>
-            
-
-          </div>
-        </div>
-      <!--/noindex-->
-      
 
     </div>
   </aside>
