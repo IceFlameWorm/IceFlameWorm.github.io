@@ -65,7 +65,7 @@
 <meta property="og:site_name" content="冰焰虫子">
 <meta property="og:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-03T16:07:02.127Z">
+<meta property="og:updated_time" content="2019-12-03T16:13:42.706Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="pdfplumber是怎么做表格抽取的（二）">
 <meta name="twitter:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉">
@@ -300,7 +300,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-12-04 00:07:02" itemprop="dateModified" datetime="2019-12-04T00:07:02+08:00">2019-12-04</time>
+                <time title="修改时间：2019-12-04 00:13:42" itemprop="dateModified" datetime="2019-12-04T00:13:42+08:00">2019-12-04</time>
               </span>
             
           
@@ -361,14 +361,14 @@
 
       
         <ul>
-<li><a href="#%e8%83%8c%e6%99%af%e4%bb%8b%e7%bb%8d">背景介绍</a></li>
-<li><a href="#%e5%be%97%e5%88%b0%e5%ae%9a%e4%b9%89%e8%a1%a8%e6%a0%bc%e7%9a%84%e8%be%b9">得到定义表格的“边”</a><ul>
-<li><a href="#%e7%9c%8b%e5%be%97%e8%a7%81%e7%9a%84%e8%be%b9">看得见的边</a></li>
-<li><a href="#%e7%9c%8b%e4%b8%8d%e8%a7%81%e7%9a%84%e8%be%b9">看不见的边</a></li>
-<li><a href="#%e9%a2%9d%e5%a4%96%e6%8c%87%e5%ae%9a%e7%9a%84%e8%be%b9">额外指定的边</a></li>
+<li><a href="#%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D">背景介绍</a></li>
+<li><a href="#%E5%BE%97%E5%88%B0%E5%AE%9A%E4%B9%89%E8%A1%A8%E6%A0%BC%E7%9A%84%E8%BE%B9">得到定义表格的“边”</a><ul>
+<li><a href="#%E7%9C%8B%E5%BE%97%E8%A7%81%E7%9A%84%E8%BE%B9">看得见的边</a></li>
+<li><a href="#%E7%9C%8B%E4%B8%8D%E8%A7%81%E7%9A%84%E8%BE%B9">看不见的边</a></li>
+<li><a href="#%E9%A2%9D%E5%A4%96%E6%8C%87%E5%AE%9A%E7%9A%84%E8%BE%B9">额外指定的边</a></li>
 </ul>
 </li>
-<li><a href="#%e6%89%be%e5%88%b0%e7%9b%b8%e4%ba%a4%e7%9a%84%e8%be%b9">找到相交的边</a></li>
+<li><a href="#%E6%89%BE%E5%88%B0%E7%9B%B8%E4%BA%A4%E7%9A%84%E7%82%B9">找到相交的点</a></li>
 </ul>
 <h1 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h1><p>最近在做一个表格信息抽取的项目，该项目需要从pdf文件中找到的目标表格，并把目标表格中需要的行和列给抽取出来。由于项目中pdf扫描件占比相对较少（不太到10%吧），所以目前主要把精力花在可编辑pdf文件的表格抽取上。</p>
 <p>即便是可编辑的pdf文件，从中抽取表格也不是一件容易的事情，概括起来，难在以下几点：</p>
