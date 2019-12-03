@@ -113,6 +113,32 @@ def words_to_edges_h(words,
 
 ## 额外指定的边
 
+对于线框不完全的表格，如果表格检抽取效果不佳，pdfplumber支持在用`pdfplumber.page.Page`类中的`find_tables`和`extract_tables`等方法抽取表格的时候，从外部指定一些水平或竖直的线，以提升表格抽取的效果。
 
+# 找到相交的点
 
-# 找到相交的边
+因为文档中的表格以及表格单元格基本上都是矩形的，而矩形是可以由其顶点确定的，所以，在找到那些可能是表格或单元格边界的线之后，接下来是找出它们的交点。下面就是`pdfplumber.table`模块中`edges_to__intersections`函数的代码，用于找到水平线与竖直线之间的交点，最终的返回的结果是一个字典，以交点坐标作为key，value中保存的是相交于该交点的线。
+
+```python
+def edges_to_intersections(edges, x_tolerance=1, y_tolerance=1):
+    """
+    Given a list of edges, return the points at which they intersect within `tolerance` pixels.
+    """
+    intersections = {}
+    v_edges, h_edges = [ list(filter(lambda x: x["orientation"] == o, edges))
+        for o in ("v", "h") ]
+    for v in sorted(v_edges, key=itemgetter("x0", "top")):
+        for h in sorted(h_edges, key=itemgetter("top", "x0")):
+            if ((v["top"] <= (h["top"] + y_tolerance)) and
+                (v["bottom"] >= (h["top"] - y_tolerance)) and
+                (v["x0"] >= (h["x0"] - x_tolerance)) and
+                (v["x0"] <= (h["x1"] + x_tolerance))):
+                vertex = (v["x0"], h["top"])
+                if vertex not in intersections:
+                    intersections[vertex] = { "v": [], "h": [] }
+                intersections[vertex]["v"].append(v)
+                intersections[vertex]["h"].append(h)
+    return intersections
+```
+
+好了，这部分就到这里啦 ^_^
