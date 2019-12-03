@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="generator" content="Hexo 3.9.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: 'search.xml'
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉">
+<meta name="keywords" content="表格抽取,表格检测,表格识别,开源框架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pdfplumber是怎么做表格抽取的（一）">
+<meta property="og:url" content="http://iceflameworm.github.io/2019/12/02/pdfplumber-table-extraction-1/index.html">
+<meta property="og:site_name" content="冰焰虫子">
+<meta property="og:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-12-03T13:26:01.854Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pdfplumber是怎么做表格抽取的（一）">
+<meta name="twitter:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉">
+  <link rel="canonical" href="http://iceflameworm.github.io/2019/12/02/pdfplumber-table-extraction-1/">
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>pdfplumber是怎么做表格抽取的（一） | 冰焰虫子</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">冰焰虫子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+    <ul id="menu" class="menu">
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-search">
+          <a href="javascript:;" class="popup-trigger">
+          
+            <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+    
+
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+    </div>
+</nav>
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/12/02/pdfplumber-table-extraction-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aaron Li">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冰焰虫子">
+    </span>
+      <header class="post-header">
+
+        
+          <h1 class="post-title" itemprop="name headline">pdfplumber是怎么做表格抽取的（一）
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-12-02 17:42:49" itemprop="dateCreated datePublished" datetime="2019-12-02T17:42:49+08:00">2019-12-02</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-12-03 21:26:01" itemprop="dateModified" datetime="2019-12-03T21:26:01+08:00">2019-12-03</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/表格抽取/" itemprop="url" rel="index"><span itemprop="name">表格抽取</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon"
+              >
+                <i class="fa fa-eye"></i>
+                 阅读次数： 
+                <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+              </span>
+            </span>
+          
+            
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="fa fa-comment-o"></i>
+    </span>
+    
+      <span class="post-meta-item-text">评论数：</span>
+    
+  
+    <a href="/2019/12/02/pdfplumber-table-extraction-1/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/02/pdfplumber-table-extraction-1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+          <br>
+            <div class="post-description">pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉及的内容比较多，所以计划分为三部分进行整理：1. 介绍pdfplumber及其表格抽取流程, 2. 梳理pdfplumber表格线检测逻辑, 3. 梳理pdfplumber表格生成逻辑。本文是第一部分。</div>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><a href="#%e8%83%8c%e6%99%af%e4%bb%8b%e7%bb%8d">背景介绍</a></li>
+<li><a href="#pdfplumber%e7%ae%80%e4%bb%8b">pdfplumber简介</a></li>
+<li><a href="#pdfplumber%e6%8a%bd%e5%8f%96%e8%a1%a8%e6%a0%bc%e7%9a%84%e5%9f%ba%e6%9c%ac%e6%b5%81%e7%a8%8b">pdfplumber抽取表格的基本流程</a></li>
+</ul>
+<h1 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h1><p>最近在做一个表格信息抽取的项目，该项目需要从pdf文件中找到的目标表格，并把目标表格中需要的行和列给抽取出来。由于项目中pdf扫描件占比相对较少（不太到10%吧），所以目前主要把精力花在可编辑pdf文件的表格抽取上。</p>
+<p>即便是可编辑的pdf文件，从中抽取表格也不是一件容易的事情，概括起来，难在以下几点：</p>
+<ol>
+<li>与其说pdf是一种数据格式，不如说它是一组打印指令的集合，因为pdf文件保存的只是一条条打印指令，这些指令告诉pdf阅读器或打印机该在屏幕或者纸张的什么位置显示什么样的符号。与docx和html等格式的文件不同（docx和html通过标签的方式组织不同的逻辑结构，比如&lt;table&gt;, &lt;w:tbl&gt;, &lt;p&gt;, &lt;w:p&gt;等），pdf文件不包含任何逻辑结构的信息，比如段落、句子、单词、表格等等。在pdf文档中，即便在阅读器中能看到<code>table-like</code>的东西，但是却无法直接有效地把这些视觉上<code>table-like</code>的东西所对应的数据给抽取出来。</li>
+<li>除了不会保存逻辑结构信息之外，pdf往往也不会保存空格、制表符、回车等不可见字符，所以在pdf中无法像在docx中一样，通过制表符来定位不是用线框表示的表格。</li>
+</ol>
+<p>为了从pdf中比较好的抽取表格，作者调研、尝试了许多开源的框架（不限于python开发的框架），包括微软开源的深度学习表格检测与识别模型<a href="https://github.com/doc-analysis/TableBank" target="_blank" rel="noopener">TableBank</a>。尝试了一圈下来，在基于python的框架中，pdfplumber和camelot的效果相对较好。对于线框完全的表格，二者都能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，二者的效果就差了不少。</p>
+<p>因为在项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，作者在这里对pdfplubmer的代码逻辑进行了梳理。由于所涉及的内容比较多，所以计划分为三部分进行整理，分别是：</p>
+<ol>
+<li>pdfplumber是怎么做表格抽取的（一）：介绍pdfplumber及其表格抽取流程</li>
+<li>pdfplumber是怎么做表格抽取的（二）：梳理pdfplumber表格线检测逻辑</li>
+<li>pdfplumber是怎么做表格抽取的（三）：梳理pdfplumber表格生成逻辑</li>
+</ol>
+<p>本文是第一部分。</p>
+<h1 id="pdfplumber简介"><a href="#pdfplumber简介" class="headerlink" title="pdfplumber简介"></a>pdfplumber简介</h1><p><a href="https://github.com/jsvine/pdfplumber" target="_blank" rel="noopener">pdfplumber</a>是一款基于<a href="https://github.com/euske/pdfminer" target="_blank" rel="noopener">pdfminer</a>，完全由python开发的pdf文档解析库，不仅可以获取每个字符、矩形框、线等对象的具体信息，而且还可以抽取文本和表格。目前pdfplumber<strong>仅支持可编辑的pdf文档</strong>。</p>
+<p>虽然pdfminer也可以对可编辑的pdf文档进行解析，但是比较而言，pdfplumber有以下优势：</p>
+<ol>
+<li>二者都可以获取到每个字符、矩形框、线等对象的具体信息，但是pdfplumber在pdfminer的基础上进行了封装和处理，使得到的对象更易于使用，对用户更友好。</li>
+<li>二者都能对文本解析，但是pdfminer输出的文本在布局上可能与原文差别比较大，但是pdfplumber抽取出的文本与原文可以有更高的一致性。</li>
+<li>pdfplumber实现了表格抽取逻辑，基于最基本的字符、线框等对象的位置信息，定位、识别pdf文档中的表格。</li>
+</ol>
+<h1 id="pdfplumber抽取表格的基本流程"><a href="#pdfplumber抽取表格的基本流程" class="headerlink" title="pdfplumber抽取表格的基本流程"></a>pdfplumber抽取表格的基本流程</h1><p>pdfplumber把表格抽取的功能封装在<code>TableFinder</code>这个类中，在其构造函数<code>__init__</code>中，清晰的定义了表格抽取的基本流程。下面截取了<code>TableFinder</code>类<code>__init__</code>函数部分的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TableFinder</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Given a PDF page, find plausible table structures.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Largely borrowed from Anssi Nurminen's master's thesis: http://dspace.cc.tut.fi/dpub/bitstream/handle/123456789/21520/Nurminen.pdf?sequence=3</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    ... and inspired by Tabula: https://github.com/tabulapdf/tabula-extractor/issues/16</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, page, settings=&#123;&#125;)</span>:</span></span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> settings.keys():</span><br><span class="line">            <span class="keyword">if</span> k <span class="keyword">not</span> <span class="keyword">in</span> DEFAULT_TABLE_SETTINGS:</span><br><span class="line">                <span class="keyword">raise</span> ValueError(<span class="string">"Unrecognized table setting: '&#123;0&#125;'"</span>.format(</span><br><span class="line">                    k</span><br><span class="line">                ))</span><br><span class="line">        self.page = page</span><br><span class="line">        self.settings = dict(DEFAULT_TABLE_SETTINGS)</span><br><span class="line">        self.settings.update(settings)</span><br><span class="line">        <span class="keyword">for</span> var, fallback <span class="keyword">in</span> [</span><br><span class="line">            (<span class="string">"text_x_tolerance"</span>, <span class="string">"text_tolerance"</span>),</span><br><span class="line">            (<span class="string">"text_y_tolerance"</span>, <span class="string">"text_tolerance"</span>),</span><br><span class="line">            (<span class="string">"intersection_x_tolerance"</span>, <span class="string">"intersection_tolerance"</span>),</span><br><span class="line">            (<span class="string">"intersection_y_tolerance"</span>, <span class="string">"intersection_tolerance"</span>),</span><br><span class="line">        ]:</span><br><span class="line">            <span class="keyword">if</span> self.settings[var] == <span class="literal">None</span>:</span><br><span class="line">                self.settings.update(&#123;</span><br><span class="line">                    var: self.settings[fallback]</span><br><span class="line">                &#125;)</span><br><span class="line">        self.edges = self.get_edges()</span><br><span class="line">        self.intersections = edges_to_intersections(</span><br><span class="line">            self.edges,</span><br><span class="line">            self.settings[<span class="string">"intersection_x_tolerance"</span>],</span><br><span class="line">            self.settings[<span class="string">"intersection_y_tolerance"</span>],</span><br><span class="line">        )</span><br><span class="line">        self.cells = intersections_to_cells(</span><br><span class="line">            self.intersections</span><br><span class="line">        )</span><br><span class="line">        self.tables = [ Table(self.page, t)</span><br><span class="line">            <span class="keyword">for</span> t <span class="keyword">in</span> cells_to_tables(self.cells) ]</span><br></pre></td></tr></table></figure>
+
+<p>pdfplumber抽取表格主要包含以下几步：</p>
+<ol>
+<li>因为表格以及单元格都是存在边界的（由可见或不可见的线表示），所以第一步，pdfplumber是找到可见的或猜测出不可见的候选表格线。</li>
+<li>因为表格以及单元格基本上都是定义在一块举行区域内，所以第二步，pdfplumber是根据候选的表格线确定它们的交点。</li>
+<li>根据得到的交点，找到它们围成的最小的单元格。</li>
+<li>把连通的单元格整合到一起，生成一个检测出的表格对象。</li>
+</ol>
+<p>好了，这部分就初步写到这里吧 ^_^</p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>文章作者:</span><a href="/" title="访问 Aaron Li 的个人博客">Aaron Li</a></p>
+  <p><span>原始链接:</span><a href="/2019/12/02/pdfplumber-table-extraction-1/" title="pdfplumber是怎么做表格抽取的（一）">http://iceflameworm.github.io/2019/12/02/pdfplumber-table-extraction-1/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://iceflameworm.github.io/2019/12/02/pdfplumber-table-extraction-1/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+          
+    </div>
+
+    <footer class="post-footer">
+          
+        
+        <div class="post-tags">
+            <a href="/tags/表格抽取/" rel="tag"><i class="fa fa-tag"></i> 表格抽取</a>
+          
+            <a href="/tags/表格检测/" rel="tag"><i class="fa fa-tag"></i> 表格检测</a>
+          
+            <a href="/tags/表格识别/" rel="tag"><i class="fa fa-tag"></i> 表格识别</a>
+          
+            <a href="/tags/开源框架/" rel="tag"><i class="fa fa-tag"></i> 开源框架</a>
+          
+        </div>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+              <a href="/2019/09/01/shap-values/" rel="next" title="SHAP VALUES —— 什么影响了你的决定？">
+                <i class="fa fa-chevron-left"></i> SHAP VALUES —— 什么影响了你的决定？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+          </div>
+        </div>
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="comments"></div>
+  
+
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/cat.jpg"
+      alt="Aaron Li">
+  <p class="site-author-name" itemprop="name">Aaron Li</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/IceFlameWorm" title="GitHub &rarr; https://github.com/IceFlameWorm" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+  </div>
+
+
+
+        </div>
+      </div>
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pdfplumber简介"><span class="nav-number">2.</span> <span class="nav-text">pdfplumber简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pdfplumber抽取表格的基本流程"><span class="nav-number">3.</span> <span class="nav-text">pdfplumber抽取表格的基本流程</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aaron Li</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+      </div>
+
+    
+
+  </div>
+
+  
+    
+    
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+  
+  <script src="/js/schemes/muse.js?v=7.2.0"></script>
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.2.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'xVmVckG2v4FmVpK5BPqxbEXq-gzGzoHsz',
+    appKey: 'ctjxdQOYXjMtqjQoiayub8vA',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+</body>
+</html>
