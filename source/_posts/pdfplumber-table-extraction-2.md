@@ -17,6 +17,7 @@ date: 2019-12-03 17:42:49
   - [看得见的边](#%e7%9c%8b%e5%be%97%e8%a7%81%e7%9a%84%e8%be%b9)
   - [看不见的边](#%e7%9c%8b%e4%b8%8d%e8%a7%81%e7%9a%84%e8%be%b9)
   - [额外指定的边](#%e9%a2%9d%e5%a4%96%e6%8c%87%e5%ae%9a%e7%9a%84%e8%be%b9)
+- [合并找到的边](#%e5%90%88%e5%b9%b6%e6%89%be%e5%88%b0%e7%9a%84%e8%be%b9)
 - [找到相交的点](#%e6%89%be%e5%88%b0%e7%9b%b8%e4%ba%a4%e7%9a%84%e7%82%b9)
 
 # 背景介绍
@@ -115,6 +116,41 @@ def words_to_edges_h(words,
 ## 额外指定的边
 
 对于线框不完全的表格，如果表格检抽取效果不佳，pdfplumber支持在用`pdfplumber.page.Page`类中的`find_tables`和`extract_tables`等方法抽取表格的时候，从外部指定一些水平或竖直的线，以提升表格抽取的效果。
+
+# 合并找到的边
+
+通过上面的方法，可能会找到很多线段，其中存在不少的冗余：
+
+1. 某些平行线之间的垂直距离非常小，需要对它们进行对齐，让他们位于同一条直线上，pdfplumer使用平均位置进行对齐。
+2. 对于同一直线上的某些线段，相互之间邻近端点的距离非常小，这种情况，pdfplumber会把它们合并成一个线段。
+
+`pdfplumber.table.TableFinder`类的`get_edges`方法会调用同一模块下的`merge_edges`函数实现上述功能。下面是`merge_edges`的代码：
+
+```python
+def merge_edges(edges, snap_tolerance, join_tolerance):
+    """
+    Using the `snap_edges` and `join_edge_group` methods above, merge a list of edges into a more "seamless" list.
+    """
+    def get_group(edge):
+        if edge["orientation"] == "h":
+            return ("h", edge["top"])
+        else:
+            return ("v", edge["x0"])
+
+    if snap_tolerance > 0:
+        edges = snap_edges(edges, snap_tolerance)
+
+    if join_tolerance > 0:
+        _sorted = sorted(edges, key=get_group)
+        edge_groups = itertools.groupby(_sorted, key=get_group)
+        edge_gen = (join_edge_group(items, k[0], join_tolerance)
+            for k, items in edge_groups)
+        edges = list(itertools.chain(*edge_gen))
+    return edges
+```
+
+`merge_edges`函数分别调用同模块下的`snap_edges`和`join_edge_group`函数进行平行线的对齐以及同一直线上线段的合并。
+
 
 # 找到相交的点
 
