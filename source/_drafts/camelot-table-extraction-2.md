@@ -1,5 +1,5 @@
 ---
-title: camelot-table-extraction-2
+title: camelot是怎么做表格抽取的（二）—— 线框类表格抽取
 copyright: true
 date: 2020-01-03 23:44:49
 tags:
