@@ -4,7 +4,7 @@
 
 
 
-<html class="theme-next muse use-motion" lang="zh-CN">
+<html class="theme-next pisces use-motion" lang="zh-CN">
 <head>
   <meta charset="UTF-8">
 <meta name="generator" content="Hexo 3.9.0">
@@ -26,7 +26,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Muse',
+    scheme: 'Pisces',
     version: '7.2.0',
     sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
     back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
@@ -57,18 +57,18 @@
   };
 </script>
 
-  <meta name="description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉">
+  <meta name="description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取效果的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于">
 <meta name="keywords" content="表格抽取,表格检测,表格识别,开源框架">
 <meta property="og:type" content="article">
 <meta property="og:title" content="pdfplumber是怎么做表格抽取的（二）">
 <meta property="og:url" content="http://iceflameworm.github.io/2019/12/03/pdfplumber-table-extraction-2/index.html">
 <meta property="og:site_name" content="冰焰虫子">
-<meta property="og:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉">
+<meta property="og:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取效果的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-12-03T16:13:42.706Z">
+<meta property="og:updated_time" content="2020-01-04T04:14:47.579Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="pdfplumber是怎么做表格抽取的（二）">
-<meta name="twitter:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉">
+<meta name="twitter:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取效果的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于">
   <link rel="canonical" href="http://iceflameworm.github.io/2019/12/03/pdfplumber-table-extraction-2/">
 
 
@@ -208,8 +208,6 @@
         </li>
       
     </ul>
-    
-
     <div class="site-search">
       
   <div class="popup search-popup local-search-popup">
@@ -242,6 +240,8 @@
     <main id="main" class="main">
       <div class="main-inner">
         <div class="content-wrap">
+            
+
           <div id="content" class="content">
             
 
@@ -300,7 +300,7 @@
                 
                   <span class="post-meta-item-text">更新于</span>
                 
-                <time title="修改时间：2019-12-04 00:13:42" itemprop="dateModified" datetime="2019-12-04T00:13:42+08:00">2019-12-04</time>
+                <time title="修改时间：2020-01-04 12:14:47" itemprop="dateModified" datetime="2020-01-04T12:14:47+08:00">2020-01-04</time>
               </span>
             
           
@@ -348,7 +348,7 @@
   
   
           <br>
-            <div class="post-description">pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉及的内容比较多，所以计划分为三部分进行整理：1. 介绍pdfplumber及其表格抽取流程, 2. 梳理pdfplumber表格线检测逻辑, 3. 梳理pdfplumber表格生成逻辑。本文是第二部分。</div>
+            <div class="post-description">pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取效果的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉及的内容比较多，所以计划分为三部分进行整理：1. 介绍pdfplumber及其表格抽取流程, 2. 梳理pdfplumber表格线检测逻辑, 3. 梳理pdfplumber表格生成逻辑。本文是第二部分。</div>
           
 
         </div>
@@ -361,19 +361,20 @@
 
       
         <ul>
-<li><a href="#%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D">背景介绍</a></li>
-<li><a href="#%E5%BE%97%E5%88%B0%E5%AE%9A%E4%B9%89%E8%A1%A8%E6%A0%BC%E7%9A%84%E8%BE%B9">得到定义表格的“边”</a><ul>
-<li><a href="#%E7%9C%8B%E5%BE%97%E8%A7%81%E7%9A%84%E8%BE%B9">看得见的边</a></li>
-<li><a href="#%E7%9C%8B%E4%B8%8D%E8%A7%81%E7%9A%84%E8%BE%B9">看不见的边</a></li>
-<li><a href="#%E9%A2%9D%E5%A4%96%E6%8C%87%E5%AE%9A%E7%9A%84%E8%BE%B9">额外指定的边</a></li>
+<li><a href="#%e8%83%8c%e6%99%af%e4%bb%8b%e7%bb%8d">背景介绍</a></li>
+<li><a href="#%e5%be%97%e5%88%b0%e5%ae%9a%e4%b9%89%e8%a1%a8%e6%a0%bc%e7%9a%84%e8%be%b9">得到定义表格的“边”</a><ul>
+<li><a href="#%e7%9c%8b%e5%be%97%e8%a7%81%e7%9a%84%e8%be%b9">看得见的边</a></li>
+<li><a href="#%e7%9c%8b%e4%b8%8d%e8%a7%81%e7%9a%84%e8%be%b9">看不见的边</a></li>
+<li><a href="#%e9%a2%9d%e5%a4%96%e6%8c%87%e5%ae%9a%e7%9a%84%e8%be%b9">额外指定的边</a></li>
 </ul>
 </li>
-<li><a href="#%E6%89%BE%E5%88%B0%E7%9B%B8%E4%BA%A4%E7%9A%84%E7%82%B9">找到相交的点</a></li>
+<li><a href="#%e5%90%88%e5%b9%b6%e6%89%be%e5%88%b0%e7%9a%84%e8%be%b9">合并找到的边</a></li>
+<li><a href="#%e6%89%be%e5%88%b0%e7%9b%b8%e4%ba%a4%e7%9a%84%e7%82%b9">找到相交的点</a></li>
 </ul>
 <h1 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h1><p>最近在做一个表格信息抽取的项目，该项目需要从pdf文件中找到的目标表格，并把目标表格中需要的行和列给抽取出来。由于项目中pdf扫描件占比相对较少（不太到10%吧），所以目前主要把精力花在可编辑pdf文件的表格抽取上。</p>
 <p>即便是可编辑的pdf文件，从中抽取表格也不是一件容易的事情，概括起来，难在以下几点：</p>
 <ol>
-<li>与其说pdf是一种数据格式，不如说它是一组打印指令的集合，因为pdf文件保存的只是一条条打印指令，这些指令告诉pdf阅读器或打印机该在屏幕或者纸张的什么位置显示什么样的符号。与docx和html等格式的文件不同（docx和html通过标签的方式组织不同的逻辑结构，比如<table>, &lt;w:tbl&gt;, <p>, &lt;w:p&gt;等），pdf文件不包含任何逻辑结构的信息，比如段落、句子、单词、表格等等。在pdf文档中，即便在阅读器中能看到<code>table-like</code>的东西，但是却无法直接有效地把这些视觉上<code>table-like</code>的东西所对应的数据给抽取出来。</p></table></li>
+<li>与其说pdf是一种数据格式，不如说它是一组打印指令的集合，因为pdf文件保存的只是一条条打印指令，这些指令告诉pdf阅读器或打印机该在屏幕或者纸张的什么位置显示什么样的符号。与docx和html等格式的文件不同（docx和html通过标签的方式组织不同的逻辑结构，比如&lt;table&gt;, &lt;w:tbl&gt;, &lt;p&gt;, &lt;w:p&gt;等），pdf文件不包含任何逻辑结构的信息，比如段落、句子、单词、表格等等。在pdf文档中，即便在阅读器中能看到<code>table-like</code>的东西，但是却无法直接有效地把这些视觉上<code>table-like</code>的东西所对应的数据给抽取出来。</li>
 <li>除了不会保存逻辑结构信息之外，pdf往往也不会保存空格、制表符、回车等不可见字符，所以在pdf中无法像在docx中一样，通过制表符来定位不是用线框表示的表格。</li>
 </ol>
 <p>为了从pdf中比较好的抽取表格，作者调研、尝试了许多开源的框架（不限于python开发的框架），包括微软开源的深度学习表格检测与识别模型<a href="https://github.com/doc-analysis/TableBank" target="_blank" rel="noopener">TableBank</a>。尝试了一圈下来，在基于python的框架中，pdfplumber和camelot的效果相对较好。对于线框完全的表格，二者都能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，二者的效果就差了不少。</p>
@@ -415,6 +416,15 @@
 <li>把剩下列块的左边界和最右边列块的右边界作为找到的边返回。</li>
 </ol>
 <h2 id="额外指定的边"><a href="#额外指定的边" class="headerlink" title="额外指定的边"></a>额外指定的边</h2><p>对于线框不完全的表格，如果表格检抽取效果不佳，pdfplumber支持在用<code>pdfplumber.page.Page</code>类中的<code>find_tables</code>和<code>extract_tables</code>等方法抽取表格的时候，从外部指定一些水平或竖直的线，以提升表格抽取的效果。</p>
+<h1 id="合并找到的边"><a href="#合并找到的边" class="headerlink" title="合并找到的边"></a>合并找到的边</h1><p>通过上面的方法，可能会找到很多线段，其中存在不少的冗余：</p>
+<ol>
+<li>某些平行线之间的垂直距离非常小，需要对它们进行对齐，让他们位于同一条直线上，pdfplumer使用平均位置进行对齐。</li>
+<li>对于同一直线上的某些线段，相互之间邻近端点的距离非常小，这种情况，pdfplumber会把它们合并成一个线段。</li>
+</ol>
+<p><code>pdfplumber.table.TableFinder</code>类的<code>get_edges</code>方法会调用同一模块下的<code>merge_edges</code>函数实现上述功能。下面是<code>merge_edges</code>的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">merge_edges</span><span class="params">(edges, snap_tolerance, join_tolerance)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Using the `snap_edges` and `join_edge_group` methods above, merge a list of edges into a more "seamless" list.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get_group</span><span class="params">(edge)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> edge[<span class="string">"orientation"</span>] == <span class="string">"h"</span>:</span><br><span class="line">            <span class="keyword">return</span> (<span class="string">"h"</span>, edge[<span class="string">"top"</span>])</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> (<span class="string">"v"</span>, edge[<span class="string">"x0"</span>])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> snap_tolerance &gt; <span class="number">0</span>:</span><br><span class="line">        edges = snap_edges(edges, snap_tolerance)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> join_tolerance &gt; <span class="number">0</span>:</span><br><span class="line">        _sorted = sorted(edges, key=get_group)</span><br><span class="line">        edge_groups = itertools.groupby(_sorted, key=get_group)</span><br><span class="line">        edge_gen = (join_edge_group(items, k[<span class="number">0</span>], join_tolerance)</span><br><span class="line">            <span class="keyword">for</span> k, items <span class="keyword">in</span> edge_groups)</span><br><span class="line">        edges = list(itertools.chain(*edge_gen))</span><br><span class="line">    <span class="keyword">return</span> edges</span><br></pre></td></tr></table></figure>
+
+<p><code>merge_edges</code>函数分别调用同模块下的<code>snap_edges</code>和<code>join_edge_group</code>函数进行平行线的对齐以及同一直线上线段的合并。</p>
 <h1 id="找到相交的点"><a href="#找到相交的点" class="headerlink" title="找到相交的点"></a>找到相交的点</h1><p>因为文档中的表格以及表格单元格基本上都是矩形的，而矩形是可以由其顶点确定的，所以，在找到那些可能是表格或单元格边界的线之后，接下来是找出它们的交点。下面就是<code>pdfplumber.table</code>模块中<code>edges_to__intersections</code>函数的代码，用于找到水平线与竖直线之间的交点，最终的返回的结果是一个字典，以交点坐标作为key，value中保存的是相交于该交点的线。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edges_to_intersections</span><span class="params">(edges, x_tolerance=<span class="number">1</span>, y_tolerance=<span class="number">1</span>)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Given a list of edges, return the points at which they intersect within `tolerance` pixels.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    intersections = &#123;&#125;</span><br><span class="line">    v_edges, h_edges = [ list(filter(<span class="keyword">lambda</span> x: x[<span class="string">"orientation"</span>] == o, edges))</span><br><span class="line">        <span class="keyword">for</span> o <span class="keyword">in</span> (<span class="string">"v"</span>, <span class="string">"h"</span>) ]</span><br><span class="line">    <span class="keyword">for</span> v <span class="keyword">in</span> sorted(v_edges, key=itemgetter(<span class="string">"x0"</span>, <span class="string">"top"</span>)):</span><br><span class="line">        <span class="keyword">for</span> h <span class="keyword">in</span> sorted(h_edges, key=itemgetter(<span class="string">"top"</span>, <span class="string">"x0"</span>)):</span><br><span class="line">            <span class="keyword">if</span> ((v[<span class="string">"top"</span>] &lt;= (h[<span class="string">"top"</span>] + y_tolerance)) <span class="keyword">and</span></span><br><span class="line">                (v[<span class="string">"bottom"</span>] &gt;= (h[<span class="string">"top"</span>] - y_tolerance)) <span class="keyword">and</span></span><br><span class="line">                (v[<span class="string">"x0"</span>] &gt;= (h[<span class="string">"x0"</span>] - x_tolerance)) <span class="keyword">and</span></span><br><span class="line">                (v[<span class="string">"x0"</span>] &lt;= (h[<span class="string">"x1"</span>] + x_tolerance))):</span><br><span class="line">                vertex = (v[<span class="string">"x0"</span>], h[<span class="string">"top"</span>])</span><br><span class="line">                <span class="keyword">if</span> vertex <span class="keyword">not</span> <span class="keyword">in</span> intersections:</span><br><span class="line">                    intersections[vertex] = &#123; <span class="string">"v"</span>: [], <span class="string">"h"</span>: [] &#125;</span><br><span class="line">                intersections[vertex][<span class="string">"v"</span>].append(v)</span><br><span class="line">                intersections[vertex][<span class="string">"h"</span>].append(h)</span><br><span class="line">    <span class="keyword">return</span> intersections</span><br></pre></td></tr></table></figure>
 
@@ -482,6 +492,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+              <a href="/2019/12/04/pdfplumber-table-extraction-3/" rel="prev" title="pdfplumber是怎么做表格抽取的（三）">
+                pdfplumber是怎么做表格抽取的（三） <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
     </footer>
@@ -539,7 +553,7 @@
         
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -627,7 +641,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#得到定义表格的“边”"><span class="nav-number">2.</span> <span class="nav-text">得到定义表格的“边”</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#看得见的边"><span class="nav-number">2.1.</span> <span class="nav-text">看得见的边</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#看不见的边"><span class="nav-number">2.2.</span> <span class="nav-text">看不见的边</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#额外指定的边"><span class="nav-number">2.3.</span> <span class="nav-text">额外指定的边</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#找到相交的点"><span class="nav-number">3.</span> <span class="nav-text">找到相交的点</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#得到定义表格的“边”"><span class="nav-number">2.</span> <span class="nav-text">得到定义表格的“边”</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#看得见的边"><span class="nav-number">2.1.</span> <span class="nav-text">看得见的边</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#看不见的边"><span class="nav-number">2.2.</span> <span class="nav-text">看不见的边</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#额外指定的边"><span class="nav-number">2.3.</span> <span class="nav-text">额外指定的边</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#合并找到的边"><span class="nav-number">3.</span> <span class="nav-text">合并找到的边</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#找到相交的点"><span class="nav-number">4.</span> <span class="nav-text">找到相交的点</span></a></li></ol></div>
             
 
           </div>
@@ -704,7 +718,8 @@
   <script src="/js/motion.js?v=7.2.0"></script>
 
   
-  <script src="/js/schemes/muse.js?v=7.2.0"></script>
+  <script src="/js/affix.js?v=7.2.0"></script>
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
 
 
   

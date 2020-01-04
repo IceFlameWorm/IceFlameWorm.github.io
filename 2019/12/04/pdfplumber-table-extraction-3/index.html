@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="generator" content="Hexo 3.9.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: 'search.xml'
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取效果的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于">
+<meta name="keywords" content="表格抽取,表格检测,表格识别,开源框架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pdfplumber是怎么做表格抽取的（三）">
+<meta property="og:url" content="http://iceflameworm.github.io/2019/12/04/pdfplumber-table-extraction-3/index.html">
+<meta property="og:site_name" content="冰焰虫子">
+<meta property="og:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取效果的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-01-04T04:14:47.579Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pdfplumber是怎么做表格抽取的（三）">
+<meta name="twitter:description" content="pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取效果的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于">
+  <link rel="canonical" href="http://iceflameworm.github.io/2019/12/04/pdfplumber-table-extraction-3/">
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>pdfplumber是怎么做表格抽取的（三） | 冰焰虫子</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">冰焰虫子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+    <ul id="menu" class="menu">
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-search">
+          <a href="javascript:;" class="popup-trigger">
+          
+            <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+    </div>
+</nav>
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2019/12/04/pdfplumber-table-extraction-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aaron Li">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冰焰虫子">
+    </span>
+      <header class="post-header">
+
+        
+          <h1 class="post-title" itemprop="name headline">pdfplumber是怎么做表格抽取的（三）
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-12-04 17:42:49" itemprop="dateCreated datePublished" datetime="2019-12-04T17:42:49+08:00">2019-12-04</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-01-04 12:14:47" itemprop="dateModified" datetime="2020-01-04T12:14:47+08:00">2020-01-04</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/表格抽取/" itemprop="url" rel="index"><span itemprop="name">表格抽取</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon"
+              >
+                <i class="fa fa-eye"></i>
+                 阅读次数： 
+                <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+              </span>
+            </span>
+          
+            
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="fa fa-comment-o"></i>
+    </span>
+    
+      <span class="post-meta-item-text">评论数：</span>
+    
+  
+    <a href="/2019/12/04/pdfplumber-table-extraction-3/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/04/pdfplumber-table-extraction-3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+          <br>
+            <div class="post-description">pdfplumber是一款完全用python开发的pdf解析库，对于线框完全的表格，pdfminer能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，其效果就差了不少。因为在实际项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取效果的方法，这里对pdfplubmer的代码逻辑进行了梳理。由于所涉及的内容比较多，所以计划分为三部分进行整理：1. 介绍pdfplumber及其表格抽取流程, 2. 梳理pdfplumber表格线检测逻辑, 3. 梳理pdfplumber表格生成逻辑。本文是第三部分。</div>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><a href="#%e8%83%8c%e6%99%af%e4%bb%8b%e7%bb%8d">背景介绍</a></li>
+<li><a href="#%e8%87%aa%e5%ba%95%e5%90%91%e4%b8%8a%e7%9a%84%e6%96%b9%e6%b3%95">自底向上的方法</a></li>
+<li><a href="#%e7%94%9f%e6%88%90%e5%8d%95%e5%85%83%e6%a0%bc">生成单元格</a></li>
+<li><a href="#%e7%94%9f%e6%88%90%e8%a1%a8%e6%a0%bc">生成表格</a></li>
+<li><a href="#%e5%ad%98%e5%9c%a8%e7%9a%84%e9%97%ae%e9%a2%98">存在的问题</a></li>
+</ul>
+<h1 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h1><p>最近在做一个表格信息抽取的项目，该项目需要从pdf文件中找到的目标表格，并把目标表格中需要的行和列给抽取出来。由于项目中pdf扫描件占比相对较少（不太到10%吧），所以目前主要把精力花在可编辑pdf文件的表格抽取上。</p>
+<p>即便是可编辑的pdf文件，从中抽取表格也不是一件容易的事情，概括起来，难在以下几点：</p>
+<ol>
+<li>与其说pdf是一种数据格式，不如说它是一组打印指令的集合，因为pdf文件保存的只是一条条打印指令，这些指令告诉pdf阅读器或打印机该在屏幕或者纸张的什么位置显示什么样的符号。与docx和html等格式的文件不同（docx和html通过标签的方式组织不同的逻辑结构，比如&lt;table&gt;, &lt;w:tbl&gt;, &lt;p&gt;, &lt;w:p&gt;等），pdf文件不包含任何逻辑结构的信息，比如段落、句子、单词、表格等等。在pdf文档中，即便在阅读器中能看到<code>table-like</code>的东西，但是却无法直接有效地把这些视觉上<code>table-like</code>的东西所对应的数据给抽取出来。</li>
+<li>除了不会保存逻辑结构信息之外，pdf往往也不会保存空格、制表符、回车等不可见字符，所以在pdf中无法像在docx中一样，通过制表符来定位不是用线框表示的表格。</li>
+</ol>
+<p>为了从pdf中比较好的抽取表格，作者调研、尝试了许多开源的框架（不限于python开发的框架），包括微软开源的深度学习表格检测与识别模型<a href="https://github.com/doc-analysis/TableBank" target="_blank" rel="noopener">TableBank</a>。尝试了一圈下来，在基于python的框架中，pdfplumber和camelot的效果相对较好。对于线框完全的表格，二者都能给出比较好的抽取效果，但是对于线框不完全（包含无线框）的表格，二者的效果就差了不少。</p>
+<p>因为在项目所需处理的pdf文档中，线框完全及不完全的表格都比较多，所以为了能够理解pdfplumber实现表格抽取的原理和方法，找到改善、提升表格抽取的方法，作者在这里对pdfplubmer的代码逻辑进行了梳理。由于所涉及的内容比较多，所以计划分为三部分进行整理，分别是：</p>
+<ol>
+<li>pdfplumber是怎么做表格抽取的（一）：介绍pdfplumber及其表格抽取流程</li>
+<li>pdfplumber是怎么做表格抽取的（二）：梳理pdfplumber表格线检测逻辑</li>
+<li>pdfplumber是怎么做表格抽取的（三）：梳理pdfplumber表格生成逻辑</li>
+</ol>
+<p>本文是第三部分。</p>
+<h1 id="自底向上的方法"><a href="#自底向上的方法" class="headerlink" title="自底向上的方法"></a>自底向上的方法</h1><p>在找到了可能的表格线以及这些线的交点之后，接下来就是根据线和交点找到并识别出可能存在的表格。pdfplumber采用了一种自底向上的方式，先根据线和交点找到可能存在的单元格，然后在把连通在一起的单元格组合成一个表格。</p>
+<h1 id="生成单元格"><a href="#生成单元格" class="headerlink" title="生成单元格"></a>生成单元格</h1><p><code>pdfplumber.table.TableFinder</code>类调用同一模块下的<code>intersections_to_cells</code>函数，根据前面找到的线和交点找出可能存在的单元格。下面是<code>intersections_to_cells</code>函数的代码，据代码所示，生成单元格主要包含以下几步：</p>
+<ol>
+<li>首先对所有交点按照自左向右、自上向下的方式排序。</li>
+<li>找到以每个交点作为左上角的最小的单元格。<strong>因为对输入的交点进行了排序，所以返回的单元格应该也是相同的顺序排序的。</strong></li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">intersections_to_cells</span><span class="params">(intersections)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Given a list of points (`intersections`), return all retangular "cells" those points describe.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    `intersections` should be a dictionary with (x0, top) tuples as keys,</span></span><br><span class="line"><span class="string">    and a list of edge objects as values. The edge objects should correspond</span></span><br><span class="line"><span class="string">    to the edges that touch the intersection.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">edge_connects</span><span class="params">(p1, p2)</span>:</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">edges_to_set</span><span class="params">(edges)</span>:</span></span><br><span class="line">            <span class="keyword">return</span> set(map(utils.obj_to_bbox, edges))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> p1[<span class="number">0</span>] == p2[<span class="number">0</span>]:</span><br><span class="line">            common = edges_to_set(intersections[p1][<span class="string">"v"</span>])\</span><br><span class="line">                .intersection(edges_to_set(intersections[p2][<span class="string">"v"</span>]))</span><br><span class="line">            <span class="keyword">if</span> len(common): <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> p1[<span class="number">1</span>] == p2[<span class="number">1</span>]:</span><br><span class="line">            common = edges_to_set(intersections[p1][<span class="string">"h"</span>])\</span><br><span class="line">                .intersection(edges_to_set(intersections[p2][<span class="string">"h"</span>]))</span><br><span class="line">            <span class="keyword">if</span> len(common): <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    points = list(sorted(intersections.keys()))     </span><br><span class="line">    n_points = len(points)</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">find_smallest_cell</span><span class="params">(points, i)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> i == n_points - <span class="number">1</span>: <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        pt = points[i]</span><br><span class="line">        rest = points[i+<span class="number">1</span>:]</span><br><span class="line">        <span class="comment"># Get all the points directly below and directly right</span></span><br><span class="line">        below = [ x <span class="keyword">for</span> x <span class="keyword">in</span> rest <span class="keyword">if</span> x[<span class="number">0</span>] == pt[<span class="number">0</span>] ] </span><br><span class="line">        right = [ x <span class="keyword">for</span> x <span class="keyword">in</span> rest <span class="keyword">if</span> x[<span class="number">1</span>] == pt[<span class="number">1</span>] ] </span><br><span class="line">        <span class="keyword">for</span> below_pt <span class="keyword">in</span> below:</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> edge_connects(pt, below_pt): <span class="keyword">continue</span></span><br><span class="line">                </span><br><span class="line">            <span class="keyword">for</span> right_pt <span class="keyword">in</span> right:</span><br><span class="line">                <span class="keyword">if</span> <span class="keyword">not</span> edge_connects(pt, right_pt): <span class="keyword">continue</span></span><br><span class="line">                </span><br><span class="line">                bottom_right = (right_pt[<span class="number">0</span>], below_pt[<span class="number">1</span>])</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span> ((bottom_right <span class="keyword">in</span> intersections) <span class="keyword">and</span></span><br><span class="line">                    edge_connects(bottom_right, right_pt) <span class="keyword">and</span></span><br><span class="line">                    edge_connects(bottom_right, below_pt)):</span><br><span class="line">                    </span><br><span class="line">                    <span class="keyword">return</span> (</span><br><span class="line">                        pt[<span class="number">0</span>],</span><br><span class="line">                        pt[<span class="number">1</span>],</span><br><span class="line">                        bottom_right[<span class="number">0</span>],</span><br><span class="line">                        bottom_right[<span class="number">1</span>]</span><br><span class="line">                    )</span><br><span class="line"></span><br><span class="line">    cell_gen = (find_smallest_cell(points, i) <span class="keyword">for</span> i <span class="keyword">in</span> range(len(points)))</span><br><span class="line">    <span class="keyword">return</span> list(filter(<span class="literal">None</span>, cell_gen))</span><br></pre></td></tr></table></figure>
+
+<h1 id="生成表格"><a href="#生成表格" class="headerlink" title="生成表格"></a>生成表格</h1><p><code>pdfplumber.table.TableFinder</code>类调用同一模块下的<code>cells_to_tables</code>函数，根据前面找到的单元格，把连通的单元格合并到一起生成对应的表格。下面是<code>cells_to_tables</code>函数的代码，<strong>需要注意的是，入参cells也是按照自左向右、自上向下排过序的。</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cells_to_tables</span><span class="params">(cells)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Given a list of bounding boxes (`cells`), return a list of tables that hold those those cells most simply (and contiguously).</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">bbox_to_corners</span><span class="params">(bbox)</span>:</span></span><br><span class="line">        x0, top, x1, bottom = bbox</span><br><span class="line">        <span class="keyword">return</span> list(itertools.product((x0, x1), (top, bottom)))</span><br><span class="line">    </span><br><span class="line">    cells = [ &#123;</span><br><span class="line">        <span class="string">"available"</span>: <span class="literal">True</span>,</span><br><span class="line">        <span class="string">"bbox"</span>: bbox,</span><br><span class="line">        <span class="string">"corners"</span>: bbox_to_corners(bbox)</span><br><span class="line">    &#125; <span class="keyword">for</span> bbox <span class="keyword">in</span> cells ]</span><br><span class="line">    </span><br><span class="line">        <span class="comment"># Iterate through the cells found above, and assign them</span></span><br><span class="line">    <span class="comment"># to contiguous tables</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">init_new_table</span><span class="params">()</span>:</span></span><br><span class="line">        <span class="keyword">return</span> &#123; <span class="string">"corners"</span>: set([]), <span class="string">"cells"</span>: [] &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">assign_cell</span><span class="params">(cell, table)</span>:</span></span><br><span class="line">        table[<span class="string">"corners"</span>] = table[<span class="string">"corners"</span>].union(set(cell[<span class="string">"corners"</span>]))</span><br><span class="line">        table[<span class="string">"cells"</span>].append(cell[<span class="string">"bbox"</span>])</span><br><span class="line">        cell[<span class="string">"available"</span>] = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    n_cells = len(cells)</span><br><span class="line">    n_assigned = <span class="number">0</span></span><br><span class="line">    tables = []</span><br><span class="line">    current_table = init_new_table()</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        initial_cell_count = len(current_table[<span class="string">"cells"</span>])</span><br><span class="line">        <span class="keyword">for</span> i, cell <span class="keyword">in</span> enumerate(filter(itemgetter(<span class="string">"available"</span>), cells)):</span><br><span class="line">            <span class="keyword">if</span> len(current_table[<span class="string">"cells"</span>]) == <span class="number">0</span>:</span><br><span class="line">                assign_cell(cell, current_table)</span><br><span class="line">                n_assigned += <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                corner_count = sum(c <span class="keyword">in</span> current_table[<span class="string">"corners"</span>]</span><br><span class="line">                    <span class="keyword">for</span> c <span class="keyword">in</span> cell[<span class="string">"corners"</span>])</span><br><span class="line">                <span class="keyword">if</span> corner_count &gt; <span class="number">0</span> <span class="keyword">and</span> cell[<span class="string">"available"</span>]:</span><br><span class="line">                    assign_cell(cell, current_table)</span><br><span class="line">                    n_assigned += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> n_assigned == n_cells:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span> len(current_table[<span class="string">"cells"</span>]) == initial_cell_count:</span><br><span class="line">            tables.append(current_table)</span><br><span class="line">            current_table = init_new_table()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> len(current_table[<span class="string">"cells"</span>]):</span><br><span class="line">        tables.append(current_table)</span><br><span class="line">        </span><br><span class="line">    _sorted = sorted(tables, key=<span class="keyword">lambda</span> t: min(t[<span class="string">"corners"</span>]))</span><br><span class="line">    filtered = [ t[<span class="string">"cells"</span>] <span class="keyword">for</span> t <span class="keyword">in</span> _sorted <span class="keyword">if</span> len(t[<span class="string">"cells"</span>]) &gt; <span class="number">1</span> ]</span><br><span class="line">    <span class="keyword">return</span> filtered</span><br></pre></td></tr></table></figure>
+
+<p>据代码所示，生成表格主要包含以下几步：</p>
+<ol>
+<li>对单元格的bbox进行处理，生成四个角的坐标</li>
+<li>根据可用单元格四个角的坐标判断单元是否属于当前正在生成的表格。<ol>
+<li>当单元格与当前正在生成的表格相交时，把该单元格加入到当前表格中，以后该单元格就不再可用了。</li>
+<li>当没有单元格可以加入到当前生成的表格的时候，保存该表格，并把当前正在生成的表格设成空表格，判断剩下可用的单元能够加入到当前表格中。</li>
+<li>当所有单元格都加入到某一表格之后，停止这一过程。</li>
+</ol>
+</li>
+<li>按照表格的左上角坐标进行排序。</li>
+<li>过滤掉那些过小的表格。</li>
+<li>把剩下的表格封装到<code>pdfplumber.table.Table</code>类的实例对象，<code>Table</code>类中的<code>extract</code>方法可以根据表格、单元格以及字符的位置，抽取出位于表格及其各个单元格内部的文本，最后以行的形式返回出来。</li>
+</ol>
+<p>下面就是<code>Talbe</code>类的代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Table</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, page, cells)</span>:</span></span><br><span class="line">        self.page = page</span><br><span class="line">        self.cells = cells</span><br><span class="line">        self.bbox = (</span><br><span class="line">            min(map(itemgetter(<span class="number">0</span>), cells)),</span><br><span class="line">            min(map(itemgetter(<span class="number">1</span>), cells)),</span><br><span class="line">            max(map(itemgetter(<span class="number">2</span>), cells)),</span><br><span class="line">            max(map(itemgetter(<span class="number">3</span>), cells)),</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">rows</span><span class="params">(self)</span>:</span></span><br><span class="line">        _sorted = sorted(self.cells, key=itemgetter(<span class="number">1</span>, <span class="number">0</span>)) </span><br><span class="line">        xs = list(sorted(set(map(itemgetter(<span class="number">0</span>), self.cells))))</span><br><span class="line">        rows = []</span><br><span class="line">        <span class="keyword">for</span> y, row_cells <span class="keyword">in</span> itertools.groupby(_sorted, itemgetter(<span class="number">1</span>)):</span><br><span class="line">            xdict = dict((cell[<span class="number">0</span>], cell) <span class="keyword">for</span> cell <span class="keyword">in</span> row_cells)</span><br><span class="line">            row = Row([ xdict.get(x) <span class="keyword">for</span> x <span class="keyword">in</span> xs ])</span><br><span class="line">            rows.append(row)</span><br><span class="line">        <span class="keyword">return</span> rows</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">extract</span><span class="params">(self,</span></span></span><br><span class="line"><span class="function"><span class="params">        x_tolerance=utils.DEFAULT_X_TOLERANCE,</span></span></span><br><span class="line"><span class="function"><span class="params">        y_tolerance=utils.DEFAULT_Y_TOLERANCE)</span>:</span></span><br><span class="line"></span><br><span class="line">        chars = self.page.chars</span><br><span class="line">        table_arr = []</span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">char_in_bbox</span><span class="params">(char, bbox)</span>:</span></span><br><span class="line">            v_mid = (char[<span class="string">"top"</span>] + char[<span class="string">"bottom"</span>]) / <span class="number">2</span></span><br><span class="line">            h_mid = (char[<span class="string">"x0"</span>] + char[<span class="string">"x1"</span>]) / <span class="number">2</span></span><br><span class="line">            x0, top, x1, bottom = bbox</span><br><span class="line">            <span class="keyword">return</span> (</span><br><span class="line">                (h_mid &gt;= x0) <span class="keyword">and</span></span><br><span class="line">                (h_mid &lt; x1) <span class="keyword">and</span></span><br><span class="line">                (v_mid &gt;= top) <span class="keyword">and</span></span><br><span class="line">                (v_mid &lt; bottom)</span><br><span class="line">            )</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> row <span class="keyword">in</span> self.rows:</span><br><span class="line">            arr = []</span><br><span class="line">            row_chars = [ char <span class="keyword">for</span> char <span class="keyword">in</span> chars</span><br><span class="line">                <span class="keyword">if</span> char_in_bbox(char, row.bbox) ]</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> cell <span class="keyword">in</span> row.cells:</span><br><span class="line">                <span class="keyword">if</span> cell == <span class="literal">None</span>:</span><br><span class="line">                    cell_text = <span class="literal">None</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    cell_chars = [ char <span class="keyword">for</span> char <span class="keyword">in</span> row_chars</span><br><span class="line">                        <span class="keyword">if</span> char_in_bbox(char, cell) ]</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span> len(cell_chars):</span><br><span class="line">                        cell_text = utils.extract_text(cell_chars,</span><br><span class="line">                            x_tolerance=x_tolerance,</span><br><span class="line">                            y_tolerance=y_tolerance).strip()</span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        cell_text = <span class="string">""</span></span><br><span class="line">                arr.append(cell_text)</span><br><span class="line">            table_arr.append(arr)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> table_arr</span><br></pre></td></tr></table></figure>
+
+<h1 id="存在的问题"><a href="#存在的问题" class="headerlink" title="存在的问题"></a>存在的问题</h1><p>最后了，提一下在使用pdfplumber过程中遇到的问题吧，应该会随着使用的深入不断补充，如果不懒的话 ^_^</p>
+<ol>
+<li>在用文本对齐的方式猜测可能存在的不可见的表格线的时候，整个过程是在整个页面上展开的，不会排除那些某一坐标对齐，但是相隔比较远的文本块，这样会导致：<ol>
+<li>在pdfplumber找到的左对齐、右对齐以及居中对齐的文本块中，某些文本块在竖直距离上相隔比较远，直观上或经验上讲，这些文本块虽然在水平位置上是对齐的，但是却不应该位于同一格表格的某一列中。</li>
+</ol>
+</li>
+</ol>
+<p>好了，都写完啦 ^_^</p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>文章作者:</span><a href="/" title="访问 Aaron Li 的个人博客">Aaron Li</a></p>
+  <p><span>原始链接:</span><a href="/2019/12/04/pdfplumber-table-extraction-3/" title="pdfplumber是怎么做表格抽取的（三）">http://iceflameworm.github.io/2019/12/04/pdfplumber-table-extraction-3/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://iceflameworm.github.io/2019/12/04/pdfplumber-table-extraction-3/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+          
+    </div>
+
+    <footer class="post-footer">
+          
+        
+        <div class="post-tags">
+            <a href="/tags/表格抽取/" rel="tag"><i class="fa fa-tag"></i> 表格抽取</a>
+          
+            <a href="/tags/表格检测/" rel="tag"><i class="fa fa-tag"></i> 表格检测</a>
+          
+            <a href="/tags/表格识别/" rel="tag"><i class="fa fa-tag"></i> 表格识别</a>
+          
+            <a href="/tags/开源框架/" rel="tag"><i class="fa fa-tag"></i> 开源框架</a>
+          
+        </div>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+              <a href="/2019/12/03/pdfplumber-table-extraction-2/" rel="next" title="pdfplumber是怎么做表格抽取的（二）">
+                <i class="fa fa-chevron-left"></i> pdfplumber是怎么做表格抽取的（二）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+          </div>
+        </div>
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="comments"></div>
+  
+
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/cat.jpg"
+      alt="Aaron Li">
+  <p class="site-author-name" itemprop="name">Aaron Li</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/IceFlameWorm" title="GitHub &rarr; https://github.com/IceFlameWorm" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+  </div>
+
+
+
+        </div>
+      </div>
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#自底向上的方法"><span class="nav-number">2.</span> <span class="nav-text">自底向上的方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成单元格"><span class="nav-number">3.</span> <span class="nav-text">生成单元格</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#生成表格"><span class="nav-number">4.</span> <span class="nav-text">生成表格</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存在的问题"><span class="nav-number">5.</span> <span class="nav-text">存在的问题</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aaron Li</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+      </div>
+
+    
+
+  </div>
+
+  
+    
+    
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+  
+  <script src="/js/affix.js?v=7.2.0"></script>
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.2.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'xVmVckG2v4FmVpK5BPqxbEXq-gzGzoHsz',
+    appKey: 'ctjxdQOYXjMtqjQoiayub8vA',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+</body>
+</html>
