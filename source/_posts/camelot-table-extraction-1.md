@@ -1,15 +1,16 @@
 ---
 title: camelot是怎么做表格抽取的（一）—— camelot框架概览
+tags:
+  - 表格抽取
+  - 表格检测
+  - 表格识别
+  - 开源框架
+categories: 表格抽取
 copyright: true
 date: 2020-01-13 23:44:45
-tags:
-    - 表格抽取
-    - 表格检测
-    - 表格识别
-    - 开源框架
-categories: 表格抽取
 description:
 ---
+
 
 - [背景介绍](#%e8%83%8c%e6%99%af%e4%bb%8b%e7%bb%8d)
 - [camelot相关资源](#camelot%e7%9b%b8%e5%85%b3%e8%b5%84%e6%ba%90)
