@@ -8,7 +8,7 @@ tags:
 categories: 表格抽取
 copyright: true
 date: 2020-01-13 23:44:45
-description:
+description: 由于项目需要，最近对各种开源的pdf表格抽取框架进行了调研，camelot是效果比较好的框架之一。本文对camelot框架进行了简单的梳理，主要包括与camelot相关的一些资源以及camelot的各项功能。有关camelot具体功能的梳理与剖析会在后续的文章中陆续给出，欢迎各位看官阅读、点赞、收藏。
 ---
 
 
