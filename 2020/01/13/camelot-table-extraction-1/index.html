@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="generator" content="Hexo 3.9.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: 'search.xml'
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="由于项目需要，最近对各种开源的pdf表格抽取框架进行了调研，camelot是效果比较好的框架之一。本文对camelot框架进行了简单的梳理，主要包括与camelot相关的一些资源以及camelot的各项功能。有关camelot具体功能的梳理与剖析会在后续的文章中陆续给出，欢迎各位看官阅读、点赞、收藏。">
+<meta name="keywords" content="表格抽取,表格检测,表格识别,开源框架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="camelot是怎么做表格抽取的（一）—— camelot框架概览">
+<meta property="og:url" content="http://iceflameworm.github.io/2020/01/13/camelot-table-extraction-1/index.html">
+<meta property="og:site_name" content="冰焰虫子">
+<meta property="og:description" content="由于项目需要，最近对各种开源的pdf表格抽取框架进行了调研，camelot是效果比较好的框架之一。本文对camelot框架进行了简单的梳理，主要包括与camelot相关的一些资源以及camelot的各项功能。有关camelot具体功能的梳理与剖析会在后续的文章中陆续给出，欢迎各位看官阅读、点赞、收藏。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-02-07T13:45:43.477Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="camelot是怎么做表格抽取的（一）—— camelot框架概览">
+<meta name="twitter:description" content="由于项目需要，最近对各种开源的pdf表格抽取框架进行了调研，camelot是效果比较好的框架之一。本文对camelot框架进行了简单的梳理，主要包括与camelot相关的一些资源以及camelot的各项功能。有关camelot具体功能的梳理与剖析会在后续的文章中陆续给出，欢迎各位看官阅读、点赞、收藏。">
+  <link rel="canonical" href="http://iceflameworm.github.io/2020/01/13/camelot-table-extraction-1/">
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>camelot是怎么做表格抽取的（一）—— camelot框架概览 | 冰焰虫子</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">冰焰虫子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+    <ul id="menu" class="menu">
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-search">
+          <a href="javascript:;" class="popup-trigger">
+          
+            <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+    </div>
+</nav>
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2020/01/13/camelot-table-extraction-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aaron Li">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冰焰虫子">
+    </span>
+      <header class="post-header">
+
+        
+          <h1 class="post-title" itemprop="name headline">camelot是怎么做表格抽取的（一）—— camelot框架概览
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-01-13 23:44:45" itemprop="dateCreated datePublished" datetime="2020-01-13T23:44:45+08:00">2020-01-13</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2020-02-07 21:45:43" itemprop="dateModified" datetime="2020-02-07T21:45:43+08:00">2020-02-07</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/表格抽取/" itemprop="url" rel="index"><span itemprop="name">表格抽取</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon"
+              >
+                <i class="fa fa-eye"></i>
+                 阅读次数： 
+                <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+              </span>
+            </span>
+          
+            
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="fa fa-comment-o"></i>
+    </span>
+    
+      <span class="post-meta-item-text">评论数：</span>
+    
+  
+    <a href="/2020/01/13/camelot-table-extraction-1/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/01/13/camelot-table-extraction-1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+          <br>
+            <div class="post-description">由于项目需要，最近对各种开源的pdf表格抽取框架进行了调研，camelot是效果比较好的框架之一。本文对camelot框架进行了简单的梳理，主要包括与camelot相关的一些资源以及camelot的各项功能。有关camelot具体功能的梳理与剖析会在后续的文章中陆续给出，欢迎各位看官阅读、点赞、收藏。</div>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><a href="#%e8%83%8c%e6%99%af%e4%bb%8b%e7%bb%8d">背景介绍</a></li>
+<li><a href="#camelot%e7%9b%b8%e5%85%b3%e8%b5%84%e6%ba%90">camelot相关资源</a></li>
+<li><a href="#camelot%e5%8a%9f%e8%83%bd">camelot功能</a><ul>
+<li><a href="#%e5%8a%9f%e8%83%bd%e5%ae%8c%e5%a4%87%e6%80%a7">功能完备性</a></li>
+<li><a href="#%e4%b8%a4%e7%a7%8d%e8%a1%a8%e6%a0%bc%e6%8a%bd%e5%8f%96%e6%a8%a1%e5%bc%8f">两种表格抽取模式</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h1><p>最近在做一个表格信息抽取的项目，该项目需要从pdf文件中找到的目标表格，并把目标表格中需要的行和列给抽取出来。由于项目中pdf扫描件占比相对较少（不太到10%吧），所以目前主要把精力花在可编辑pdf文件的表格抽取上。更多的背景介绍这里就不展开了，感兴趣的朋友可以到<a href="https://iceflameworm.github.io/">冰焰虫子-github pages</a>或<a href="https://www.zhihu.com/people/iceflameworm/columns" target="_blank" rel="noopener">探索发现频道-知乎专栏</a>找《pdfplumber是怎么做表格抽取的》系列看一下。</p>
+<p>camelot是作者调研的众多开源框架中效果相对比较好的之一，接下来，本文将对camelot框架进行简单的梳理，主要包括与camelot相关的一些资源以及camelot的各项功能。有关camelot具体功能的梳理与剖析会在后续的文章中陆续给出，欢迎各位看官阅读、点赞、收藏 ^_^。</p>
+<h1 id="camelot相关资源"><a href="#camelot相关资源" class="headerlink" title="camelot相关资源"></a>camelot相关资源</h1><ul>
+<li><a href="https://camelot-py.readthedocs.io/en/master/" target="_blank" rel="noopener">camelot项目页</a></li>
+<li>camelot代码仓库，有两个，其中一个可以直接通过上面的项目页跳转，可以把两个仓库看作是项目的不同分支。<ul>
+<li><a href="https://github.com/camelot-dev/camelot" target="_blank" rel="noopener">camelot-dev</a>: 这个可以直接从项目跳转，但是只有400多星，why？</li>
+<li><a href="https://github.com/atlanhq/camelot" target="_blank" rel="noopener">atlanhq</a>：这个2600星</li>
+</ul>
+</li>
+<li>Excalibur:基于camelot的前端可视化pdf抽取工具，可以通过Excalibur体验、测试camelot的效果。<ul>
+<li><a href="https://excalibur-py.readthedocs.io/en/master/" target="_blank" rel="noopener">Excaliblur项目首页</a></li>
+<li><a href="https://github.com/camelot-dev/excalibur" target="_blank" rel="noopener">Excaliblur github</a></li>
+</ul>
+</li>
+<li>camelot实现了Anssi Nurminen硕士论文中用于抽取非线框类表格的算法<ul>
+<li><a href="https://dspace.cc.tut.fi/dpub/bitstream/handle/123456789/21520/Nurminen.pdf" target="_blank" rel="noopener">Anssi Nurminen’s master’s thesis</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="camelot功能"><a href="#camelot功能" class="headerlink" title="camelot功能"></a>camelot功能</h1><h2 id="功能完备性"><a href="#功能完备性" class="headerlink" title="功能完备性"></a>功能完备性</h2><p>camelot是一个可以从可编辑的pdf文档中抽取表格的开源框架，与pdfplumber相比，其功能的完备性要差不少，因为除了表格抽取之外，并不能用它从pdf文档中解析出字符、单词、文本、线等较为低层次的对象。在表格抽取的过程中，camelot使用pdfminer实现底层对象的解析，但是这些底层对象的抽取逻辑并没有封装成通用的函数或方法，所以用camelot获取底层对象还是不太方便的。</p>
+<h2 id="两种表格抽取模式"><a href="#两种表格抽取模式" class="headerlink" title="两种表格抽取模式"></a>两种表格抽取模式</h2><p>camelot的主要功能是表格抽取，支持<code>lattice</code>和<code>stream</code>两种不同的模式，其中<code>lattice</code>用来抽取线框类的表格，<code>stream</code>用来抽取非线框类的表格。</p>
+<p>在抽取线框类表格的时候，<code>lattice</code>包含以下几步：</p>
+<ol>
+<li>把pdf页面转换成图像</li>
+<li>通过图像处理的方式，从页面中检测出水平方向和竖直方向可能用于构成表格的直线。</li>
+<li>根据检测出的直线，生成可能表格的bounding box</li>
+<li>确定表格各行、列的区域</li>
+<li>根据各行、列的区域，水平、竖直方向的表格线以及页面文本内容，解析出表格结构，填充单元格内容，最终形成表格对象。</li>
+</ol>
+<p>在抽取线框类表格的时候，<code>stream</code>包含以下几步：</p>
+<ol>
+<li>通过pdfminer获取连续字符串</li>
+<li>通过文本对齐的方式确定可能表格的bounding box</li>
+<li>确定表格各行、列的区域</li>
+<li>根据各行、列的区域以及页面上的文本字符串，解析表格结构，填充单元格内容，最终形成表格对象。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>文章作者:</span><a href="/" title="访问 Aaron Li 的个人博客">Aaron Li</a></p>
+  <p><span>原始链接:</span><a href="/2020/01/13/camelot-table-extraction-1/" title="camelot是怎么做表格抽取的（一）—— camelot框架概览">http://iceflameworm.github.io/2020/01/13/camelot-table-extraction-1/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://iceflameworm.github.io/2020/01/13/camelot-table-extraction-1/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+          
+    </div>
+
+    <footer class="post-footer">
+          
+        
+        <div class="post-tags">
+            <a href="/tags/表格抽取/" rel="tag"><i class="fa fa-tag"></i> 表格抽取</a>
+          
+            <a href="/tags/表格检测/" rel="tag"><i class="fa fa-tag"></i> 表格检测</a>
+          
+            <a href="/tags/表格识别/" rel="tag"><i class="fa fa-tag"></i> 表格识别</a>
+          
+            <a href="/tags/开源框架/" rel="tag"><i class="fa fa-tag"></i> 开源框架</a>
+          
+        </div>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+              <a href="/2019/12/04/pdfplumber-table-extraction-3/" rel="next" title="pdfplumber是怎么做表格抽取的（三）">
+                <i class="fa fa-chevron-left"></i> pdfplumber是怎么做表格抽取的（三）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+              <a href="/2020/02/07/mongdb-python-flask/" rel="prev" title="【严选】MongoDB及其在python和flask中的使用">
+                【严选】MongoDB及其在python和flask中的使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="comments"></div>
+  
+
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/cat.jpg"
+      alt="Aaron Li">
+  <p class="site-author-name" itemprop="name">Aaron Li</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/IceFlameWorm" title="GitHub &rarr; https://github.com/IceFlameWorm" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+  </div>
+
+
+
+        </div>
+      </div>
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#camelot相关资源"><span class="nav-number">2.</span> <span class="nav-text">camelot相关资源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#camelot功能"><span class="nav-number">3.</span> <span class="nav-text">camelot功能</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#功能完备性"><span class="nav-number">3.1.</span> <span class="nav-text">功能完备性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#两种表格抽取模式"><span class="nav-number">3.2.</span> <span class="nav-text">两种表格抽取模式</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aaron Li</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+      </div>
+
+    
+
+  </div>
+
+  
+    
+    
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+  
+  <script src="/js/affix.js?v=7.2.0"></script>
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.2.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'xVmVckG2v4FmVpK5BPqxbEXq-gzGzoHsz',
+    appKey: 'ctjxdQOYXjMtqjQoiayub8vA',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+</body>
+</html>
