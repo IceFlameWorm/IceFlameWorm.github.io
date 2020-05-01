@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="generator" content="Hexo 3.9.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: 'search.xml'
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="距离写完《camelot是怎么做表格抽取的（一）—— camelot框架概览》这篇水文有不短的时间了，今天又忽然想起了它，所以就继续梳理（水）一些有关camelot抽取线框类表格的东西。">
+<meta name="keywords" content="表格抽取,表格检测,表格识别,开源框架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="camelot是怎么做表格抽取的（二）—— 线框类表格抽取">
+<meta property="og:url" content="http://iceflameworm.github.io/2020/05/01/camelot-table-extraction-2/index.html">
+<meta property="og:site_name" content="冰焰虫子">
+<meta property="og:description" content="距离写完《camelot是怎么做表格抽取的（一）—— camelot框架概览》这篇水文有不短的时间了，今天又忽然想起了它，所以就继续梳理（水）一些有关camelot抽取线框类表格的东西。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-01T14:34:00.656Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="camelot是怎么做表格抽取的（二）—— 线框类表格抽取">
+<meta name="twitter:description" content="距离写完《camelot是怎么做表格抽取的（一）—— camelot框架概览》这篇水文有不短的时间了，今天又忽然想起了它，所以就继续梳理（水）一些有关camelot抽取线框类表格的东西。">
+  <link rel="canonical" href="http://iceflameworm.github.io/2020/05/01/camelot-table-extraction-2/">
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>camelot是怎么做表格抽取的（二）—— 线框类表格抽取 | 冰焰虫子</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">冰焰虫子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+    <ul id="menu" class="menu">
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-search">
+          <a href="javascript:;" class="popup-trigger">
+          
+            <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+    </div>
+</nav>
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2020/05/01/camelot-table-extraction-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aaron Li">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冰焰虫子">
+    </span>
+      <header class="post-header">
+
+        
+          <h1 class="post-title" itemprop="name headline">camelot是怎么做表格抽取的（二）—— 线框类表格抽取
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-05-01 22:24:49 / 修改时间：22:34:00" itemprop="dateCreated datePublished" datetime="2020-05-01T22:24:49+08:00">2020-05-01</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/表格抽取/" itemprop="url" rel="index"><span itemprop="name">表格抽取</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon"
+              >
+                <i class="fa fa-eye"></i>
+                 阅读次数： 
+                <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+              </span>
+            </span>
+          
+            
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="fa fa-comment-o"></i>
+    </span>
+    
+      <span class="post-meta-item-text">评论数：</span>
+    
+  
+    <a href="/2020/05/01/camelot-table-extraction-2/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/01/camelot-table-extraction-2/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+          <br>
+            <div class="post-description">距离写完《camelot是怎么做表格抽取的（一）—— camelot框架概览》这篇水文有不短的时间了，今天又忽然想起了它，所以就继续梳理（水）一些有关camelot抽取线框类表格的东西。</div>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在前文《camelot是怎么做表格抽取的（一）—— camelot框架概览》中已经对线框类表格，也就是<code>lattice</code>的步骤进行了简单的介绍，主要包含以下几步：</p>
+<ol>
+<li>把pdf页面转换成图像</li>
+<li>通过图像处理的方式，从页面中检测出水平方向和竖直方向可能用于构成表格的直线。</li>
+<li>根据检测出的直线，生成候选表格的bounding box</li>
+<li>找出候选表格区域中水平和竖直直线的交点</li>
+<li>确定表格各行、列的区域</li>
+<li>根据各行、列的区域，水平、竖直方向的表格线以及页面文本内容，解析出表格结构，填充单元格内容，最终形成表格对象</li>
+</ol>
+<p>接下来本文将对上述各个步骤进行更细致的梳理。</p>
+<h1 id="PDF转图像"><a href="#PDF转图像" class="headerlink" title="PDF转图像"></a>PDF转图像</h1><p>抽取线框类表格的算法主要封装在<code>camelot/parsers/lattice.py</code>中的<code>Lattice</code>类中，该类通过<code>extract_tables</code>方法对<strong>单页的pdf文档</strong>（camelot会把整个pdf文档拆分成一个个单页的pdf文档，每一页单独保存成一个pdf文档）进行表格抽取，该方法的源码如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">extract_tables</span><span class="params">(self, filename, suppress_stdout=False, layout_kwargs=&#123;&#125;)</span>:</span></span><br><span class="line">    self._generate_layout(filename, layout_kwargs)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> suppress_stdout:</span><br><span class="line">        logger.info(<span class="string">"Processing &#123;&#125;"</span>.format(os.path.basename(self.rootname)))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> self.horizontal_text:</span><br><span class="line">        <span class="keyword">if</span> self.images:</span><br><span class="line">            warnings.warn(</span><br><span class="line">                <span class="string">"&#123;&#125; is image-based, camelot only works on"</span></span><br><span class="line">                <span class="string">" text-based pages."</span>.format(os.path.basename(self.rootname))</span><br><span class="line">            )</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            warnings.warn(</span><br><span class="line">                <span class="string">"No tables found on &#123;&#125;"</span>.format(os.path.basename(self.rootname))</span><br><span class="line">            )</span><br><span class="line">        <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">    self._generate_image()</span><br><span class="line">    self._generate_table_bbox()</span><br><span class="line"></span><br><span class="line">    _tables = []</span><br><span class="line">    <span class="comment"># sort tables based on y-coord</span></span><br><span class="line">    <span class="keyword">for</span> table_idx, tk <span class="keyword">in</span> enumerate(</span><br><span class="line">        sorted(self.table_bbox.keys(), key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>], reverse=<span class="literal">True</span>)</span><br><span class="line">    ):</span><br><span class="line">        cols, rows, v_s, h_s = self._generate_columns_and_rows(table_idx, tk)</span><br><span class="line">        table = self._generate_table(table_idx, cols, rows, v_s=v_s, h_s=h_s)</span><br><span class="line">        table._bbox = tk</span><br><span class="line">        _tables.append(table)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> _tables</span><br></pre></td></tr></table></figure>
+
+<p><code>_generate_layout</code>方法使用<code>pdfminer</code>库对每一页对应的pdf文档进行加载和layout analysis，把页面上的字符组织成一个个水平/竖直方向连续的文本。在PDF转图像这一部分，用不到这些文本内容。</p>
+<p>由于<code>lattice</code>是通过图像处理的方式检测表格线框的，所以第一步需要把pdf转换成图像，在<code>Lattice</code>类中，这一功能是通过<code>_generate_image</code>实现的，下面是该方法的源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_generate_image</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="keyword">from</span> ..ext.ghostscript <span class="keyword">import</span> Ghostscript</span><br><span class="line"></span><br><span class="line">    self.imagename = <span class="string">""</span>.join([self.rootname, <span class="string">".png"</span>])</span><br><span class="line">    gs_call = <span class="string">"-q -sDEVICE=png16m -o &#123;&#125; -r300 &#123;&#125;"</span>.format(</span><br><span class="line">        self.imagename, self.filename</span><br><span class="line">    )</span><br><span class="line">    gs_call = gs_call.encode().split()</span><br><span class="line">    null = open(os.devnull, <span class="string">"wb"</span>)</span><br><span class="line">    <span class="keyword">with</span> Ghostscript(*gs_call, stdout=null) <span class="keyword">as</span> gs:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    null.close()</span><br></pre></td></tr></table></figure>
+
+<p>该方法会调用<code>ghostscript</code>命令行工具，把单页的pdf文档转换单页的page图像，所以在安装camelot之前需要安装<code>ghostscript</code>这个转换工具，具体的安装指南可以参考camelot的官方文档：<a href="https://camelot-py.readthedocs.io/en/master/user/install-deps.html，有关`ghostscript`方法这里也就不具体展开了，其实我也不是太了解^_^。" target="_blank" rel="noopener">https://camelot-py.readthedocs.io/en/master/user/install-deps.html，有关`ghostscript`方法这里也就不具体展开了，其实我也不是太了解^_^。</a></p>
+<h1 id="直线检测"><a href="#直线检测" class="headerlink" title="直线检测"></a>直线检测</h1><p>在<code>lattice</code>模式下，想要检测出表格区域，首先要检测出构成表格线框的直线。在<code>Lattice</code>类的<code>_generate_table_bbox</code>方法中，通过调用<code>camelot/image_procesing.py</code>中的<code>find_lines</code>函数在图像中检测直线，<code>find_lines</code>的源码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_lines</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    threshold, regions=None, direction=<span class="string">"horizontal"</span>, line_scale=<span class="number">15</span>, iterations=<span class="number">0</span></span></span></span><br><span class="line"><span class="function"><span class="params">)</span>:</span></span><br><span class="line">    <span class="string">"""Finds horizontal and vertical lines by applying morphological</span></span><br><span class="line"><span class="string">    transformations on an image.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Parameters</span></span><br><span class="line"><span class="string">    ----------</span></span><br><span class="line"><span class="string">    threshold : object</span></span><br><span class="line"><span class="string">        numpy.ndarray representing the thresholded image.</span></span><br><span class="line"><span class="string">    regions : list, optional (default: None)</span></span><br><span class="line"><span class="string">        List of page regions that may contain tables of the form x1,y1,x2,y2</span></span><br><span class="line"><span class="string">        where (x1, y1) -&gt; left-top and (x2, y2) -&gt; right-bottom</span></span><br><span class="line"><span class="string">        in image coordinate space.</span></span><br><span class="line"><span class="string">    direction : string, optional (default: 'horizontal')</span></span><br><span class="line"><span class="string">        Specifies whether to find vertical or horizontal lines.</span></span><br><span class="line"><span class="string">    line_scale : int, optional (default: 15)</span></span><br><span class="line"><span class="string">        Factor by which the page dimensions will be divided to get</span></span><br><span class="line"><span class="string">        smallest length of lines that should be detected.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        The larger this value, smaller the detected lines. Making it</span></span><br><span class="line"><span class="string">        too large will lead to text being detected as lines.</span></span><br><span class="line"><span class="string">    iterations : int, optional (default: 0)</span></span><br><span class="line"><span class="string">        Number of times for erosion/dilation is applied.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        For more information, refer `OpenCV's dilate &lt;https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#dilate&gt;`_.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns</span></span><br><span class="line"><span class="string">    -------</span></span><br><span class="line"><span class="string">    dmask : object</span></span><br><span class="line"><span class="string">        numpy.ndarray representing pixels where vertical/horizontal</span></span><br><span class="line"><span class="string">        lines lie.</span></span><br><span class="line"><span class="string">    lines : list</span></span><br><span class="line"><span class="string">        List of tuples representing vertical/horizontal lines with</span></span><br><span class="line"><span class="string">        coordinates relative to a left-top origin in</span></span><br><span class="line"><span class="string">        image coordinate space.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    lines = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> direction == <span class="string">"vertical"</span>:</span><br><span class="line">        size = threshold.shape[<span class="number">0</span>] // line_scale</span><br><span class="line">        el = cv2.getStructuringElement(cv2.MORPH_RECT, (<span class="number">1</span>, size))</span><br><span class="line">    <span class="keyword">elif</span> direction == <span class="string">"horizontal"</span>:</span><br><span class="line">        size = threshold.shape[<span class="number">1</span>] // line_scale</span><br><span class="line">        el = cv2.getStructuringElement(cv2.MORPH_RECT, (size, <span class="number">1</span>))</span><br><span class="line">    <span class="keyword">elif</span> direction <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">"Specify direction as either 'vertical' or 'horizontal'"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> regions <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        region_mask = np.zeros(threshold.shape)</span><br><span class="line">        <span class="keyword">for</span> region <span class="keyword">in</span> regions:</span><br><span class="line">            x, y, w, h = region</span><br><span class="line">            region_mask[y : y + h, x : x + w] = <span class="number">1</span></span><br><span class="line">        threshold = np.multiply(threshold, region_mask)</span><br><span class="line"></span><br><span class="line">    threshold = cv2.erode(threshold, el)</span><br><span class="line">    threshold = cv2.dilate(threshold, el)</span><br><span class="line">    dmask = cv2.dilate(threshold, el, iterations=iterations)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        _, contours, _ = cv2.findContours(</span><br><span class="line">            threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE</span><br><span class="line">        )</span><br><span class="line">    <span class="keyword">except</span> ValueError:</span><br><span class="line">        <span class="comment"># for opencv backward compatibility</span></span><br><span class="line">        contours, _ = cv2.findContours(</span><br><span class="line">            threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> contours:</span><br><span class="line">        x, y, w, h = cv2.boundingRect(c)</span><br><span class="line">        x1, x2 = x, x + w</span><br><span class="line">        y1, y2 = y, y + h</span><br><span class="line">        <span class="keyword">if</span> direction == <span class="string">"vertical"</span>:</span><br><span class="line">            lines.append(((x1 + x2) // <span class="number">2</span>, y2, (x1 + x2) // <span class="number">2</span>, y1))</span><br><span class="line">        <span class="keyword">elif</span> direction == <span class="string">"horizontal"</span>:</span><br><span class="line">            lines.append((x1, (y1 + y2) // <span class="number">2</span>, x2, (y1 + y2) // <span class="number">2</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> dmask, lines</span><br></pre></td></tr></table></figure>
+
+<p><code>find_lines</code>中的入参<code>threshold</code>是二值化的图像，<code>camelot</code>采用的是自适应二值化。</p>
+<p><code>find_lines</code>检测直线的算法主要包含以下几步：</p>
+<ol>
+<li><p>形态学操作。通过腐蚀、膨胀操作先去除掉那些水平方向/竖直方向长度短于页面长度/宽度一定比例的区域。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">threshold = cv2.erode(threshold, el)</span><br><span class="line">threshold = cv2.dilate(threshold, el)</span><br><span class="line">dmask = cv2.dilate(threshold, el, iterations=iterations)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>找出图像中剩下的连通区域的外部轮廓。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    _, contours, _ = cv2.findContours(</span><br><span class="line">        threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE</span><br><span class="line">    )</span><br><span class="line"><span class="keyword">except</span> ValueError:</span><br><span class="line">    <span class="comment"># for opencv backward compatibility</span></span><br><span class="line">    contours, _ = cv2.findContours(</span><br><span class="line">        threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>得到连通区域的bounding box，然后根据方向对bbox的坐标取平均得到检测到的直线。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> contours:</span><br><span class="line">    x, y, w, h = cv2.boundingRect(c)</span><br><span class="line">    x1, x2 = x, x + w</span><br><span class="line">    y1, y2 = y, y + h</span><br><span class="line">    <span class="keyword">if</span> direction == <span class="string">"vertical"</span>:</span><br><span class="line">        lines.append(((x1 + x2) // <span class="number">2</span>, y2, (x1 + x2) // <span class="number">2</span>, y1))</span><br><span class="line">    <span class="keyword">elif</span> direction == <span class="string">"horizontal"</span>:</span><br><span class="line">        lines.append((x1, (y1 + y2) // <span class="number">2</span>, x2, (y1 + y2) // <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> dmask, lines</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h1 id="表格区域检测"><a href="#表格区域检测" class="headerlink" title="表格区域检测"></a>表格区域检测</h1><p>从页面图像检测出水平和竖直方向的直线区域后，<code>Lattice</code>类的<code>_generate_table_bbox</code>方法通过调用<code>camelot/image_processing.py</code>中的<code>find_contours</code>函数生成候选表格所在的矩形区域。<code>find_contours</code>的源码如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_contours</span><span class="params">(vertical, horizontal)</span>:</span></span><br><span class="line">    <span class="string">"""Finds table boundaries using OpenCV's findContours.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Parameters</span></span><br><span class="line"><span class="string">    ----------</span></span><br><span class="line"><span class="string">    vertical : object</span></span><br><span class="line"><span class="string">        numpy.ndarray representing pixels where vertical lines lie.</span></span><br><span class="line"><span class="string">    horizontal : object</span></span><br><span class="line"><span class="string">        numpy.ndarray representing pixels where horizontal lines lie.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns</span></span><br><span class="line"><span class="string">    -------</span></span><br><span class="line"><span class="string">    cont : list</span></span><br><span class="line"><span class="string">        List of tuples representing table boundaries. Each tuple is of</span></span><br><span class="line"><span class="string">        the form (x, y, w, h) where (x, y) -&gt; left-top, w -&gt; width and</span></span><br><span class="line"><span class="string">        h -&gt; height in image coordinate space.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    mask = vertical + horizontal</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        __, contours, __ = cv2.findContours(</span><br><span class="line">            mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE</span><br><span class="line">        )</span><br><span class="line">    <span class="keyword">except</span> ValueError:</span><br><span class="line">        <span class="comment"># for opencv backward compatibility</span></span><br><span class="line">        contours, __ = cv2.findContours(</span><br><span class="line">            mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE</span><br><span class="line">        )</span><br><span class="line">    <span class="comment"># sort in reverse based on contour area and use first 10 contours</span></span><br><span class="line">    contours = sorted(contours, key=cv2.contourArea, reverse=<span class="literal">True</span>)[:<span class="number">10</span>]</span><br><span class="line"></span><br><span class="line">    cont = []</span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> contours:</span><br><span class="line">        c_poly = cv2.approxPolyDP(c, <span class="number">3</span>, <span class="literal">True</span>)</span><br><span class="line">        x, y, w, h = cv2.boundingRect(c_poly)</span><br><span class="line">        cont.append((x, y, w, h))</span><br><span class="line">    <span class="keyword">return</span> cont</span><br></pre></td></tr></table></figure>
+
+<p><code>find_contours</code>生成表格区域主要分为以下几步：</p>
+<ol>
+<li><p>将水平和竖直方向的直线区域叠加到一起，形成一些由水平、竖直直线区域相交形成的连通区域。</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mask = vertical + horizontal</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>找到上述叠加图像中各连通区域的外轮廓。</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    __, contours, __ = cv2.findContours(</span><br><span class="line">        mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE</span><br><span class="line">    )</span><br><span class="line"><span class="keyword">except</span> ValueError:</span><br><span class="line">    <span class="comment"># for opencv backward compatibility</span></span><br><span class="line">    contours, __ = cv2.findContours(</span><br><span class="line">        mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>按照面积对得到的连通区域的轮廓进行排序，保留面积最大的前十个轮廓。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">contours = sorted(contours, key=cv2.contourArea, reverse=<span class="literal">True</span>)[:<span class="number">10</span>]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>把包围连通区域的矩形区域作为候选表格的矩形区域</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cont = []</span><br><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> contours:</span><br><span class="line">    c_poly = cv2.approxPolyDP(c, <span class="number">3</span>, <span class="literal">True</span>) <span class="comment"># 用折线对轮廓进行近似</span></span><br><span class="line">    x, y, w, h = cv2.boundingRect(c_poly)</span><br><span class="line">    cont.append((x, y, w, h))</span><br><span class="line"><span class="keyword">return</span> cont</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h1 id="找到水平和竖直方向直线的交点"><a href="#找到水平和竖直方向直线的交点" class="headerlink" title="找到水平和竖直方向直线的交点"></a>找到水平和竖直方向直线的交点</h1><p>由于<code>lattice</code>模式是通过水平和竖直方向的交点识别表格的行、列区域的，所以在找到候选表格的矩形区域之后，<code>Lattice</code>类中的<code>_generate_table_bbox</code>方法会调用<code>camelot/image_processing.py</code>中的<code>find_joints</code>函数生成交点。<code>find_joints</code>的源码如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">find_joints</span><span class="params">(contours, vertical, horizontal)</span>:</span></span><br><span class="line">    <span class="string">"""Finds joints/intersections present inside each table boundary.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Parameters</span></span><br><span class="line"><span class="string">    ----------</span></span><br><span class="line"><span class="string">    contours : list</span></span><br><span class="line"><span class="string">        List of tuples representing table boundaries. Each tuple is of</span></span><br><span class="line"><span class="string">        the form (x, y, w, h) where (x, y) -&gt; left-top, w -&gt; width and</span></span><br><span class="line"><span class="string">        h -&gt; height in image coordinate space.</span></span><br><span class="line"><span class="string">    vertical : object</span></span><br><span class="line"><span class="string">        numpy.ndarray representing pixels where vertical lines lie.</span></span><br><span class="line"><span class="string">    horizontal : object</span></span><br><span class="line"><span class="string">        numpy.ndarray representing pixels where horizontal lines lie.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Returns</span></span><br><span class="line"><span class="string">    -------</span></span><br><span class="line"><span class="string">    tables : dict</span></span><br><span class="line"><span class="string">        Dict with table boundaries as keys and list of intersections</span></span><br><span class="line"><span class="string">        in that boundary as their value.</span></span><br><span class="line"><span class="string">        Keys are of the form (x1, y1, x2, y2) where (x1, y1) -&gt; lb</span></span><br><span class="line"><span class="string">        and (x2, y2) -&gt; rt in image coordinate space.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    joints = np.multiply(vertical, horizontal)</span><br><span class="line">    tables = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> contours:</span><br><span class="line">        x, y, w, h = c</span><br><span class="line">        roi = joints[y : y + h, x : x + w]</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            __, jc, __ = cv2.findContours(</span><br><span class="line">                roi.astype(np.uint8), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE</span><br><span class="line">            )</span><br><span class="line">        <span class="keyword">except</span> ValueError:</span><br><span class="line">            <span class="comment"># for opencv backward compatibility</span></span><br><span class="line">            jc, __ = cv2.findContours(</span><br><span class="line">                roi.astype(np.uint8), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE</span><br><span class="line">            )</span><br><span class="line">        <span class="keyword">if</span> len(jc) &lt;= <span class="number">4</span>:  <span class="comment"># remove contours with less than 4 joints</span></span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        joint_coords = []</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> jc:</span><br><span class="line">            jx, jy, jw, jh = cv2.boundingRect(j)</span><br><span class="line">            c1, c2 = x + (<span class="number">2</span> * jx + jw) // <span class="number">2</span>, y + (<span class="number">2</span> * jy + jh) // <span class="number">2</span></span><br><span class="line">            joint_coords.append((c1, c2))</span><br><span class="line">        tables[(x, y + h, x + w, y)] = joint_coords</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> tables</span><br></pre></td></tr></table></figure>
+
+<p>返回的结果是一个字典，其中key是每个候选表格的bounding box，value是位于每个候选表区域中的交点。</p>
+<h1 id="表格行列区域识别"><a href="#表格行列区域识别" class="headerlink" title="表格行列区域识别"></a>表格行列区域识别</h1><p>得到了候选表格的矩形区域之后，<code>Lattice</code>类的<code>extract_tables</code>方法通过调用自身的<code>_generate_columns_and_rows</code>方法识别出行和列所处的位置。<code>_generate_columns_and_cols</code>方法的源码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_generate_columns_and_rows</span><span class="params">(self, table_idx, tk)</span>:</span></span><br><span class="line">    <span class="comment"># select elements which lie within table_bbox</span></span><br><span class="line">    t_bbox = &#123;&#125;</span><br><span class="line">    v_s, h_s = segments_in_bbox(</span><br><span class="line">        tk, self.vertical_segments, self.horizontal_segments</span><br><span class="line">    )</span><br><span class="line">    t_bbox[<span class="string">"horizontal"</span>] = text_in_bbox(tk, self.horizontal_text)</span><br><span class="line">    t_bbox[<span class="string">"vertical"</span>] = text_in_bbox(tk, self.vertical_text)</span><br><span class="line"></span><br><span class="line">    t_bbox[<span class="string">"horizontal"</span>].sort(key=<span class="keyword">lambda</span> x: (-x.y0, x.x0))</span><br><span class="line">    t_bbox[<span class="string">"vertical"</span>].sort(key=<span class="keyword">lambda</span> x: (x.x0, -x.y0))</span><br><span class="line"></span><br><span class="line">    self.t_bbox = t_bbox</span><br><span class="line"></span><br><span class="line">    cols, rows = zip(*self.table_bbox[tk])</span><br><span class="line">    cols, rows = list(cols), list(rows)</span><br><span class="line">    cols.extend([tk[<span class="number">0</span>], tk[<span class="number">2</span>]])</span><br><span class="line">    rows.extend([tk[<span class="number">1</span>], tk[<span class="number">3</span>]])</span><br><span class="line">    <span class="comment"># sort horizontal and vertical segments</span></span><br><span class="line">    cols = merge_close_lines(sorted(cols), line_tol=self.line_tol)</span><br><span class="line">    rows = merge_close_lines(sorted(rows, reverse=<span class="literal">True</span>), line_tol=self.line_tol)</span><br><span class="line">    <span class="comment"># make grid using x and y coord of shortlisted rows and cols</span></span><br><span class="line">    cols = [(cols[i], cols[i + <span class="number">1</span>]) <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(cols) - <span class="number">1</span>)]</span><br><span class="line">    rows = [(rows[i], rows[i + <span class="number">1</span>]) <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(rows) - <span class="number">1</span>)]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cols, rows, v_s, h_s</span><br></pre></td></tr></table></figure>
+
+<p><code>_generate_columns_and_rows</code>通过以下几步生成行和列：</p>
+<ol>
+<li><p>根据表格区域内的交点，生成候选的水平、竖直表格线（根据交点的x坐标生成候选的竖直表格线，根据交点的y坐标生成候选的水平表格线）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cols, rows = zip(*self.table_bbox[tk])</span><br><span class="line">cols, rows = list(cols), list(rows)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>根据表格区域的bounding box，生成可能位于表格边界上的表格线</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cols.extend([tk[<span class="number">0</span>], tk[<span class="number">2</span>]])</span><br><span class="line">rows.extend([tk[<span class="number">1</span>], tk[<span class="number">3</span>]])</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>合并重合在一起的表格线</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cols = merge_close_lines(sorted(cols), line_tol=self.line_tol)</span><br><span class="line">rows = merge_close_lines(sorted(rows, reverse=<span class="literal">True</span>), line_tol=self.line_tol)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>两条相邻的水平/竖直直线形成一个行/列区域</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cols = [(cols[i], cols[i + <span class="number">1</span>]) <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(cols) - <span class="number">1</span>)]</span><br><span class="line">rows = [(rows[i], rows[i + <span class="number">1</span>]) <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(rows) - <span class="number">1</span>)]</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<h1 id="表格对象构建"><a href="#表格对象构建" class="headerlink" title="表格对象构建"></a>表格对象构建</h1><p>在得到候选表格区域及其对应的行列区域后，<code>Lattice</code>类的<code>extract_tables</code>方法通过调用自身的<code>_generate_table</code>方法创建表格对象。由于代码较多，这里就不贴相关代码了，只在下面大体说一下相关的东西，如果以后有机会，可能会把这部分展开具体剖析下。</p>
+<p>这些生成的表格对象以单元格为基本单位组织表格内容，但是只包含最基本的单元格对象，不包含“合并单元格”对象，即每一个单元格对象都只对应一行和一列。虽然表格对象内不包含合并单元格对象，但是每个单元格对象通过hspan和vspan属性来表示其自身是否在水平或竖直方向与其它单元格合并到了一起。</p>
+<p>因为多数情况下每个单元格在水平和竖直方向上，分别都有两个“邻居”，所以仅仅根据hspan和vspan属性还无法直接确定“合并单元格”的具体组成情况，所以对于某些需要用到“合并单元格”的情况可能不太方便。</p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>文章作者:</span><a href="/" title="访问 Aaron Li 的个人博客">Aaron Li</a></p>
+  <p><span>原始链接:</span><a href="/2020/05/01/camelot-table-extraction-2/" title="camelot是怎么做表格抽取的（二）—— 线框类表格抽取">http://iceflameworm.github.io/2020/05/01/camelot-table-extraction-2/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://iceflameworm.github.io/2020/05/01/camelot-table-extraction-2/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+          
+    </div>
+
+    <footer class="post-footer">
+          
+        
+        <div class="post-tags">
+            <a href="/tags/表格抽取/" rel="tag"><i class="fa fa-tag"></i> 表格抽取</a>
+          
+            <a href="/tags/表格检测/" rel="tag"><i class="fa fa-tag"></i> 表格检测</a>
+          
+            <a href="/tags/表格识别/" rel="tag"><i class="fa fa-tag"></i> 表格识别</a>
+          
+            <a href="/tags/开源框架/" rel="tag"><i class="fa fa-tag"></i> 开源框架</a>
+          
+        </div>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+              <a href="/2020/02/07/mongdb-python-flask/" rel="next" title="【严选】MongoDB及其在python和flask中的使用">
+                <i class="fa fa-chevron-left"></i> 【严选】MongoDB及其在python和flask中的使用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+          </div>
+        </div>
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="comments"></div>
+  
+
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/cat.jpg"
+      alt="Aaron Li">
+  <p class="site-author-name" itemprop="name">Aaron Li</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/IceFlameWorm" title="GitHub &rarr; https://github.com/IceFlameWorm" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+  </div>
+
+
+
+        </div>
+      </div>
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#PDF转图像"><span class="nav-number">1.</span> <span class="nav-text">PDF转图像</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#直线检测"><span class="nav-number">2.</span> <span class="nav-text">直线检测</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#表格区域检测"><span class="nav-number">3.</span> <span class="nav-text">表格区域检测</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#找到水平和竖直方向直线的交点"><span class="nav-number">4.</span> <span class="nav-text">找到水平和竖直方向直线的交点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#表格行列区域识别"><span class="nav-number">5.</span> <span class="nav-text">表格行列区域识别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#表格对象构建"><span class="nav-number">6.</span> <span class="nav-text">表格对象构建</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aaron Li</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+      </div>
+
+    
+
+  </div>
+
+  
+    
+    
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+  
+  <script src="/js/affix.js?v=7.2.0"></script>
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.2.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'xVmVckG2v4FmVpK5BPqxbEXq-gzGzoHsz',
+    appKey: 'ctjxdQOYXjMtqjQoiayub8vA',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+</body>
+</html>
