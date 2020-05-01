@@ -80,6 +80,123 @@ def _generate_image(self):
 该方法会调用`ghostscript`命令行工具，把单页的pdf文档转换单页的page图像，所以在安装camelot之前需要安装`ghostscript`这个转换工具，具体的安装指南可以参考camelot的官方文档：https://camelot-py.readthedocs.io/en/master/user/install-deps.html，有关`ghostscript`方法这里也就不具体展开了，其实我也不是太了解^_^。
 
 # 直线检测
+在`lattice`模式下，想要检测出表格区域，首先要检测出构成表格线框的直线。在`Lattice`类的`_generate_table_bbox`方法中，通过调用`camelot/image_procesing.py`中的`find_lines`函数在图像中检测直线，`find_lines`的源码如下：
+
+```python
+def find_lines(
+    threshold, regions=None, direction="horizontal", line_scale=15, iterations=0
+):
+    """Finds horizontal and vertical lines by applying morphological
+    transformations on an image.
+
+    Parameters
+    ----------
+    threshold : object
+        numpy.ndarray representing the thresholded image.
+    regions : list, optional (default: None)
+        List of page regions that may contain tables of the form x1,y1,x2,y2
+        where (x1, y1) -> left-top and (x2, y2) -> right-bottom
+        in image coordinate space.
+    direction : string, optional (default: 'horizontal')
+        Specifies whether to find vertical or horizontal lines.
+    line_scale : int, optional (default: 15)
+        Factor by which the page dimensions will be divided to get
+        smallest length of lines that should be detected.
+
+        The larger this value, smaller the detected lines. Making it
+        too large will lead to text being detected as lines.
+    iterations : int, optional (default: 0)
+        Number of times for erosion/dilation is applied.
+
+        For more information, refer `OpenCV's dilate <https://docs.opencv.org/2.4/modules/imgproc/doc/filtering.html#dilate>`_.
+
+    Returns
+    -------
+    dmask : object
+        numpy.ndarray representing pixels where vertical/horizontal
+        lines lie.
+    lines : list
+        List of tuples representing vertical/horizontal lines with
+        coordinates relative to a left-top origin in
+        image coordinate space.
+
+    """
+    lines = []
+
+    if direction == "vertical":
+        size = threshold.shape[0] // line_scale
+        el = cv2.getStructuringElement(cv2.MORPH_RECT, (1, size))
+    elif direction == "horizontal":
+        size = threshold.shape[1] // line_scale
+        el = cv2.getStructuringElement(cv2.MORPH_RECT, (size, 1))
+    elif direction is None:
+        raise ValueError("Specify direction as either 'vertical' or 'horizontal'")
+
+    if regions is not None:
+        region_mask = np.zeros(threshold.shape)
+        for region in regions:
+            x, y, w, h = region
+            region_mask[y : y + h, x : x + w] = 1
+        threshold = np.multiply(threshold, region_mask)
+
+    threshold = cv2.erode(threshold, el)
+    threshold = cv2.dilate(threshold, el)
+    dmask = cv2.dilate(threshold, el, iterations=iterations)
+
+    try:
+        _, contours, _ = cv2.findContours(
+            threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+    except ValueError:
+        # for opencv backward compatibility
+        contours, _ = cv2.findContours(
+            threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        x1, x2 = x, x + w
+        y1, y2 = y, y + h
+        if direction == "vertical":
+            lines.append(((x1 + x2) // 2, y2, (x1 + x2) // 2, y1))
+        elif direction == "horizontal":
+            lines.append((x1, (y1 + y2) // 2, x2, (y1 + y2) // 2))
+
+    return dmask, lines
+```
+`find_lines`中的入参`threshold`是二值化的图像，`camelot`采用的是自适应二值化。
+
+`find_lines`检测直线的算法主要包含以下几步：
+
+1. 形态学操作。通过腐蚀、膨胀操作先去除掉那些水平方向/竖直方向长度短于页面长度/宽度一定比例的区域。
+   ```python
+    threshold = cv2.erode(threshold, el)
+    threshold = cv2.dilate(threshold, el)
+    dmask = cv2.dilate(threshold, el, iterations=iterations)
+   ```
+2. 找出图像中剩下的连通区域的外部轮廓。
+   ```python
+    try:
+        _, contours, _ = cv2.findContours(
+            threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+    except ValueError:
+        # for opencv backward compatibility
+        contours, _ = cv2.findContours(
+            threshold.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        
+   ```
+3. 得到连通区域的bounding box，然后根据方向对bbox的坐标取平均得到检测到的直线。
+   ```python
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        x1, x2 = x, x + w
+        y1, y2 = y, y + h
+        if direction == "vertical":
+            lines.append(((x1 + x2) // 2, y2, (x1 + x2) // 2, y1))
+        elif direction == "horizontal":
+            lines.append((x1, (y1 + y2) // 2, x2, (y1 + y2) // 2)
+   ```
 
 # 表格区域检测
 
