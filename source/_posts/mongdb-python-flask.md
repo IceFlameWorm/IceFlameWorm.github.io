@@ -1,14 +1,17 @@
 ---
 title: 【严选】MongoDB及其在python和flask中的使用
+tags:
+  - MongoDB
+  - Python
+  - Flask
+categories: 数据库
+description: >-
+  近期的项目需求需要开发一个后台服务，该后台服务需要把中间状态和结果写到数据库中以便后续查询。出于开发的便捷性，最终选定了MongoDB。由于后台服务用python开发，服务框架基于flask，所以就搜集整理了MongoDB，及其在python和flask中使用的相关的资料。在这里把相关的资料记录分享出来，方便自己以及其它有需求的小伙伴查阅
+  ^_^。
 copyright: true
 date: 2020-02-07 21:49:14
-tags:
-    - MongoDB
-    - Python
-    - Flask
-categories: 数据库
-description: 近期的项目需求需要开发一个后台服务，该后台服务需要把中间状态和结果写到数据库中以便后续查询。出于开发的便捷性，最终选定了MongoDB。由于后台服务用python开发，服务框架基于flask，所以就搜集整理了MongoDB，及其在python和flask中使用的相关的资料。在这里把相关的资料记录分享出来，方便自己以及其它有需求的小伙伴查阅 ^_^。
 ---
+
 
 # MongoDB可视化管理工具
 
