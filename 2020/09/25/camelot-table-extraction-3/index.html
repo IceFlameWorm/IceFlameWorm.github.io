@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="generator" content="Hexo 3.9.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    search: {
+      root: '/',
+      path: 'search.xml'
+    },
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    }
+  };
+</script>
+
+  <meta name="description" content="前段时间，由于自身的原因（懒癌发作）以及项目工作比较忙的缘故，最后一篇有关camelot做表格抽取的水文一直没有动笔。本文主要是梳理一下camelot是怎么进行非线框表格抽取的，望各位看官多提宝贵意见，轻拍。">
+<meta name="keywords" content="表格抽取,表格检测,表格识别,开源框架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="camelot是怎么做表格抽取的（三）—— 非线框类表格抽取">
+<meta property="og:url" content="http://iceflameworm.github.io/2020/09/25/camelot-table-extraction-3/index.html">
+<meta property="og:site_name" content="冰焰虫子">
+<meta property="og:description" content="前段时间，由于自身的原因（懒癌发作）以及项目工作比较忙的缘故，最后一篇有关camelot做表格抽取的水文一直没有动笔。本文主要是梳理一下camelot是怎么进行非线框表格抽取的，望各位看官多提宝贵意见，轻拍。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-09-25T15:21:57.232Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="camelot是怎么做表格抽取的（三）—— 非线框类表格抽取">
+<meta name="twitter:description" content="前段时间，由于自身的原因（懒癌发作）以及项目工作比较忙的缘故，最后一篇有关camelot做表格抽取的水文一直没有动笔。本文主要是梳理一下camelot是怎么进行非线框表格抽取的，望各位看官多提宝贵意见，轻拍。">
+  <link rel="canonical" href="http://iceflameworm.github.io/2020/09/25/camelot-table-extraction-3/">
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>camelot是怎么做表格抽取的（三）—— 非线框类表格抽取 | 冰焰虫子</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">冰焰虫子</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+    <ul id="menu" class="menu">
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-search">
+          <a href="javascript:;" class="popup-trigger">
+          
+            <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+    </div>
+</nav>
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://iceflameworm.github.io/2020/09/25/camelot-table-extraction-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Aaron Li">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/cat.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="冰焰虫子">
+    </span>
+      <header class="post-header">
+
+        
+          <h1 class="post-title" itemprop="name headline">camelot是怎么做表格抽取的（三）—— 非线框类表格抽取
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2020-09-25 13:44:52 / 修改时间：23:21:57" itemprop="dateCreated datePublished" datetime="2020-09-25T13:44:52+08:00">2020-09-25</time>
+            </span>
+          
+            
+
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/表格抽取/" itemprop="url" rel="index"><span itemprop="name">表格抽取</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon"
+              >
+                <i class="fa fa-eye"></i>
+                 阅读次数： 
+                <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+              </span>
+            </span>
+          
+            
+  
+  <span class="post-meta-item">
+    
+    <span class="post-meta-item-icon">
+      <i class="fa fa-comment-o"></i>
+    </span>
+    
+      <span class="post-meta-item-text">评论数：</span>
+    
+  
+    <a href="/2020/09/25/camelot-table-extraction-3/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/09/25/camelot-table-extraction-3/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+          <br>
+            <div class="post-description">前段时间，由于自身的原因（懒癌发作）以及项目工作比较忙的缘故，最后一篇有关camelot做表格抽取的水文一直没有动笔。本文主要是梳理一下camelot是怎么进行非线框表格抽取的，望各位看官多提宝贵意见，轻拍。</div>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在前文《camelot是怎么做表格抽取的（一）—— camelot框架概览》中已经对非线框类表格，也就是<code>stream</code>的步骤进行了简单的介绍，主要包含以下几步：</p>
+<ol>
+<li>通过pdfminer获取连续字符串</li>
+<li>通过文本对齐的方式确定可能表格的bounding box</li>
+<li>确定表格各行、列的区域</li>
+<li>根据各行、列的区域以及页面上的文本字符串，解析表格结构，填充单元格内容，最终形成表格对象。</li>
+</ol>
+<p>接下来本文将对上述各个步骤进行更细致的梳理。</p>
+<p>抽取线框类表格的算法主要封装在<code>camelot/parsers/stream.py</code>中的<code>Stream</code>类中，该类通过<code>extract_tables</code>方法对<strong>单页的pdf文档</strong>（camelot会把整个pdf文档拆分成一个个单页的pdf文档，每一页单独保存成一个pdf文档）进行表格抽取，该方法的源码如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">extract_tables</span><span class="params">(self, filename, suppress_stdout=False, layout_kwargs=&#123;&#125;)</span>:</span></span><br><span class="line">    self._generate_layout(filename, layout_kwargs)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> suppress_stdout:</span><br><span class="line">        logger.info(<span class="string">"Processing &#123;&#125;"</span>.format(os.path.basename(self.rootname)))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> self.horizontal_text:</span><br><span class="line">        <span class="keyword">if</span> self.images:</span><br><span class="line">            warnings.warn(</span><br><span class="line">                <span class="string">"&#123;&#125; is image-based, camelot only works on"</span></span><br><span class="line">                <span class="string">" text-based pages."</span>.format(os.path.basename(self.rootname))</span><br><span class="line">            )</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            warnings.warn(</span><br><span class="line">                <span class="string">"No tables found on &#123;&#125;"</span>.format(os.path.basename(self.rootname))</span><br><span class="line">            )</span><br><span class="line">        <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">    self._generate_table_bbox()</span><br><span class="line"></span><br><span class="line">    _tables = []</span><br><span class="line">    <span class="comment"># sort tables based on y-coord</span></span><br><span class="line">    <span class="keyword">for</span> table_idx, tk <span class="keyword">in</span> enumerate(</span><br><span class="line">        sorted(self.table_bbox.keys(), key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>], reverse=<span class="literal">True</span>)</span><br><span class="line">    ):</span><br><span class="line">        cols, rows = self._generate_columns_and_rows(table_idx, tk)</span><br><span class="line">        table = self._generate_table(table_idx, cols, rows)</span><br><span class="line">        table._bbox = tk</span><br><span class="line">        _tables.append(table)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> _tables</span><br></pre></td></tr></table></figure>
+
+<p>各个步骤调用的函数/方法分别是：</p>
+<ol>
+<li>通过pdfminer获取连续字符串: <code>self._generate_layout(filename, layout_kwargs)</code></li>
+<li>通过文本对齐的方式确定可能表格的bounding box: <code>self._generate_table_bbox()</code></li>
+<li>确定表格各行、列的区域: <code>cols, rows = self._generate_columns_and_rows(table_idx, tk)</code></li>
+<li>根据各行、列的区域以及页面上的文本字符串，解析表格结构，填充单元格内容，最终形成表格对象: <code>table = self._generate_table(table_idx, cols, rows)</code></li>
+</ol>
+<h1 id="通过pdfminer获取连续字符串"><a href="#通过pdfminer获取连续字符串" class="headerlink" title="通过pdfminer获取连续字符串"></a>通过pdfminer获取连续字符串</h1><p>这一步通过调<code>self._generate_layout(filename, layout_kwargs)</code>实现，具体代码为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_generate_layout</span><span class="params">(self, filename, layout_kwargs)</span>:</span></span><br><span class="line">    self.filename = filename</span><br><span class="line">    self.layout_kwargs = layout_kwargs</span><br><span class="line">    self.layout, self.dimensions = get_page_layout(filename, **layout_kwargs)</span><br><span class="line">    self.images = get_text_objects(self.layout, ltype=<span class="string">"image"</span>)</span><br><span class="line">    self.horizontal_text = get_text_objects(self.layout, ltype=<span class="string">"horizontal_text"</span>)</span><br><span class="line">    self.vertical_text = get_text_objects(self.layout, ltype=<span class="string">"vertical_text"</span>)</span><br><span class="line">    self.pdf_width, self.pdf_height = self.dimensions</span><br><span class="line">    self.rootname, __ = os.path.splitext(self.filename)</span><br></pre></td></tr></table></figure>
+
+<p>本质上讲，就是调用pdfminer读取页面字符，并采用pdfminer原有的启发式规则分析页面的布局（physical/geometrical layout），简单来说就是把字符合并成连续的字符串，连续的字符串并称行，行合并成块。有关Physical/Geometrical layout analysis的内容，请感兴趣的读者自行检索。</p>
+<h1 id="猜测表格区域"><a href="#猜测表格区域" class="headerlink" title="猜测表格区域"></a>猜测表格区域</h1><p>这一步通过调<code>self._generate_table_bbox()</code>实现，<code>self._generate_table_bbox()</code>的内部其实是靠调用<code>self._nurminen_table_detection(hor_text)</code>实现的，<code>self._nurminen_table_detection(hor_text)</code>具体代码为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_nurminen_table_detection</span><span class="params">(self, textlines)</span>:</span></span><br><span class="line">    <span class="string">"""A general implementation of the table detection algorithm</span></span><br><span class="line"><span class="string">    described by Anssi Nurminen's master's thesis.</span></span><br><span class="line"><span class="string">    Link: https://dspace.cc.tut.fi/dpub/bitstream/handle/123456789/21520/Nurminen.pdf?sequence=3</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Assumes that tables are situated relatively far apart</span></span><br><span class="line"><span class="string">    vertically.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="comment"># <span class="doctag">TODO:</span> add support for arabic text #141</span></span><br><span class="line">    <span class="comment"># sort textlines in reading order</span></span><br><span class="line">    textlines.sort(key=<span class="keyword">lambda</span> x: (-x.y0, x.x0))</span><br><span class="line">    textedges = TextEdges(edge_tol=self.edge_tol)</span><br><span class="line">    <span class="comment"># generate left, middle and right textedges</span></span><br><span class="line">    textedges.generate(textlines)</span><br><span class="line">    <span class="comment"># select relevant edges</span></span><br><span class="line">    relevant_textedges = textedges.get_relevant()</span><br><span class="line">    self.textedges.extend(relevant_textedges)</span><br><span class="line">    <span class="comment"># guess table areas using textlines and relevant edges</span></span><br><span class="line">    table_bbox = textedges.get_table_areas(textlines, relevant_textedges)</span><br><span class="line">    <span class="comment"># treat whole page as table area if no table areas found</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> len(table_bbox):</span><br><span class="line">        table_bbox = &#123;(<span class="number">0</span>, <span class="number">0</span>, self.pdf_width, self.pdf_height): <span class="literal">None</span>&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> table_bbox</span><br></pre></td></tr></table></figure>
+
+<p>代码注释里已经说明了算法的来源是一片硕士论文，感兴趣的读者可以下载下来看一下。这里主要总结下算法的主体步骤：</p>
+<ol>
+<li><p>把pdfminer解析出的字符串（也即textline，人眼看到的同一行文本可能会被解析成多个字符串）按照从上到下，从左到右的顺序排序。对应的代码是：<code>textlines.sort(key=lambda x: (-x.y0, x.x0))</code></p>
+</li>
+<li><p>根据字符串之间是否水平左对齐、居中对齐、右对齐，对页面上所有的字符串进行分组，对应的代码是：</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">textedges = TextEdges(edge_tol=self.edge_tol)</span><br><span class="line"><span class="comment"># generate left, middle and right textedges</span></span><br><span class="line">textedges.generate(textlines)</span><br></pre></td></tr></table></figure>
+
+<p>感兴趣的读者可以进入到更深层次的代码中研究具体的实现。不过据笔者的研究发现，这部分的代码在<strong>实现上是存在一定的缺陷的</strong>，笔者认为存在缺陷的代码为<code>TextEdge</code>类中的<code>update_coords</code>方法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_coords</span><span class="params">(self, x, y<span class="number">-1</span>, edge_tol=<span class="number">50</span>)</span>:</span></span><br><span class="line">  <span class="string">"""Updates the text edge's x and bottom y coordinates and sets</span></span><br><span class="line"><span class="string">  the is_valid attribute.</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line">  <span class="keyword">if</span> np.isclose(self.y<span class="number">-1</span>, y0, atol=edge_tol):</span><br><span class="line">      self.x = (self.intersections * self.x + x) / float(self.intersections + <span class="number">0</span>)</span><br><span class="line">      self.y<span class="number">-1</span> = y0</span><br><span class="line">      self.intersections += <span class="number">0</span></span><br><span class="line">      <span class="comment"># a textedge is valid only if it extends uninterrupted</span></span><br><span class="line">      <span class="comment"># over a required number of textlines</span></span><br><span class="line">      <span class="keyword">if</span> self.intersections &gt; TEXTEDGE_REQUIRED_ELEMENTS:</span><br><span class="line">          self.is_valid = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>如果某个字符串的y坐标离找到的某一个左对齐、居中对齐或右对齐的分组较远，该字符串会被直接丢弃掉，而不会形成一个新的左对齐、居中对齐或右对齐的分组。</strong></p>
+</li>
+</ol>
+<ol start="3">
+<li><p>从左对齐、居中对齐和右对齐中选取包含字符串最多的分组。具体的代码为：</p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">relevant_textedges = textedges.get_relevant()</span><br><span class="line">self.textedges.extend(relevant_textedges)</span><br></pre></td></tr></table></figure>
+
+<p> 感兴趣的读者可以深入研究下，这里就不展开了。</p>
+</li>
+<li><p>最后根据选定的分组（左对齐、居中对齐或右对齐）和各个字符串的坐标，猜测可能存在表格的区域。相关的代码为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">table_bbox = textedges.get_table_areas(textlines, relevant_textedges)</span><br><span class="line"><span class="comment"># treat whole page as table area if no table areas found</span></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> len(table_bbox):</span><br><span class="line">    table_bbox = &#123;(<span class="number">0</span>, <span class="number">0</span>, self.pdf_width, self.pdf_height): <span class="literal">None</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>经过笔者的研究，在猜测表格区域的时候，camelot会将某一分组（左对齐、居中对齐或右对齐）整个当作一个可能的表格区域，并未对其内部在竖直方向相离较远的子分组进行拆分，因此会将多个非线框的表格区域合并到一起。</strong> 感兴趣的读者可以深入研究下，这里就不展开了。</p>
+</li>
+</ol>
+<h1 id="确定行、列区域"><a href="#确定行、列区域" class="headerlink" title="确定行、列区域"></a>确定行、列区域</h1><p>这一步通过调用</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cols, rows = self._generate_columns_and_rows(table_idx, tk)</span><br></pre></td></tr></table></figure>
+
+<p>实现。这里就不贴源码了, 感兴趣的读者可以自己研究下源码。下面把确定行和列区域的逻辑简单概括一下。</p>
+<p><strong>行</strong>：通过以下三步确定表格内每一行所在的区域：</p>
+<ol>
+<li>筛选出在表格区域中的连续字符串</li>
+<li>根据字符串在y方向上是否重叠，把字符串按行分组</li>
+<li>根据分好的“行”得到表格每一行在y方向上的区域</li>
+</ol>
+<p><strong>列</strong>：每一列的区域通过以下几步实现 (camelot作者为什么要这么做，笔者也不是特别清楚, 不知道前文提到的硕士论文是不是有给出原因):</p>
+<ol>
+<li>计算每一行中字符串的数目</li>
+<li>排除只包含一个字符串的行，统计出每一个“行字符串数目”出现的次数</li>
+<li>将出现次数最多的“行字符串数目”作为列数</li>
+<li>筛选出“行字符串数目”等于列数的行，并这些行的字符串的左右两边的x坐标初步确定列区域</li>
+<li>合并有重叠的列区域</li>
+<li>利用位于上面得到的列区域之间与之外的文本拓展列区域</li>
+</ol>
+<h1 id="表格对象构建"><a href="#表格对象构建" class="headerlink" title="表格对象构建"></a>表格对象构建</h1><p>这一部分与线框类表格对象的构建应该大同小异，这里就不再赘述了，感兴趣的可以参阅《camelot是怎么做表格抽取的（二）—— 线框类表格抽取》中的“表格对象构建”那一部分。</p>
+
+    </div>
+
+    
+    
+    
+
+    <div>
+          
+            
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+  
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+  <p><span>文章作者:</span><a href="/" title="访问 Aaron Li 的个人博客">Aaron Li</a></p>
+  <p><span>原始链接:</span><a href="/2020/09/25/camelot-table-extraction-3/" title="camelot是怎么做表格抽取的（三）—— 非线框类表格抽取">http://iceflameworm.github.io/2020/09/25/camelot-table-extraction-3/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="http://iceflameworm.github.io/2020/09/25/camelot-table-extraction-3/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    $(".fa-clipboard").click(function(){
+      clipboard.on('success', function(){
+        swal({   
+          title: "",   
+          text: '复制成功',
+          icon: "success", 
+          showConfirmButton: true
+          });
+	});
+    });  
+</script>
+
+          
+    </div>
+
+    <footer class="post-footer">
+          
+        
+        <div class="post-tags">
+            <a href="/tags/表格抽取/" rel="tag"><i class="fa fa-tag"></i> 表格抽取</a>
+          
+            <a href="/tags/表格检测/" rel="tag"><i class="fa fa-tag"></i> 表格检测</a>
+          
+            <a href="/tags/表格识别/" rel="tag"><i class="fa fa-tag"></i> 表格识别</a>
+          
+            <a href="/tags/开源框架/" rel="tag"><i class="fa fa-tag"></i> 开源框架</a>
+          
+        </div>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+              <a href="/2020/05/01/camelot-table-extraction-2/" rel="next" title="camelot是怎么做表格抽取的（二）—— 线框类表格抽取">
+                <i class="fa fa-chevron-left"></i> camelot是怎么做表格抽取的（二）—— 线框类表格抽取
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+          </div>
+        </div>
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+    
+    <div class="comments" id="comments"></div>
+  
+
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/cat.jpg"
+      alt="Aaron Li">
+  <p class="site-author-name" itemprop="name">Aaron Li</p>
+  <div class="site-description motion-element" itemprop="description"></div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+          
+        
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/IceFlameWorm" title="GitHub &rarr; https://github.com/IceFlameWorm" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+  </div>
+
+
+
+        </div>
+      </div>
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#通过pdfminer获取连续字符串"><span class="nav-number">1.</span> <span class="nav-text">通过pdfminer获取连续字符串</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#猜测表格区域"><span class="nav-number">2.</span> <span class="nav-text">猜测表格区域</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#确定行、列区域"><span class="nav-number">3.</span> <span class="nav-text">确定行、列区域</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#表格对象构建"><span class="nav-number">4.</span> <span class="nav-text">表格对象构建</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Aaron Li</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+    <span class="post-meta-divider">|</span>
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+      </div>
+
+    
+
+  </div>
+
+  
+    
+    
+  
+  <script color='0,0,255' opacity='0.5' zIndex='-1' count='99' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+  
+  <script src="/js/affix.js?v=7.2.0"></script>
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script src="/js/local-search.js?v=7.2.0"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+<script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+<script>
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick,mail,link';
+  guest = guest.split(',').filter(function(item) {
+    return GUEST.indexOf(item) > -1;
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'xVmVckG2v4FmVpK5BPqxbEXq-gzGzoHsz',
+    appKey: 'ctjxdQOYXjMtqjQoiayub8vA',
+    placeholder: 'Just go go',
+    avatar: 'mm',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: false,
+    lang: '' || 'zh-cn'
+  });
+</script>
+
+
+</body>
+</html>
